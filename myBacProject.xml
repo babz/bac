@@ -1,0 +1,498 @@
+<volumeshop version="0.8.1-4013 (20130222)">
+    <session name="session">
+        <property name="Geometry" type="string">
+            <![CDATA[01d9d0cb00010000fffffff8fffffff80000064700000363000000000000001400000263000001df000000000200]]>
+</property>
+        <property name="State" type="string">
+            <![CDATA[000000ff00000000fd0000000300000000000002aa000002d2fc0200000001fb0000001000760069006500770070006f007200740100000060000002d20000010000ffffff0000000100000393000002d2fc0200000001fc00000060000002d2000000b001000014fa000000000100000002fb0000000e0050006c007500670069006e00730100000000ffffffff0000006900fffffffb00000012005200650073006f007500720063006500730100000516000000be000000be00ffffff000000030000000000000000fc0100000001fb000000100043006f006e0073006f006c006500730000000000ffffffff0000007f00ffffff00000000000002d200000004000000040000000800000008fc0000000100000002000000010000000e0054006f006f006c0062006100720100000000ffffffff0000000000000000]]>
+</property>
+    </session>
+    <viewport name="viewport">
+        <property name="Visible" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+    </viewport>
+    <viewer name="viewer" viewport="viewport">
+        <property name="Background Color" type="color">
+            <![CDATA[(255;255;255;0)]]>
+</property>
+        <property name="Maximized" type="boolean">
+            <![CDATA[false]]>
+</property>
+        <property name="Visible" type="boolean">
+            <![CDATA[true]]>
+</property>
+        <property name="Width" type="integer" minimum="0" maximum="8192">
+            <![CDATA[0]]>
+</property>
+        <property name="Height" type="integer" minimum="0" maximum="8192">
+            <![CDATA[0]]>
+</property>
+        <property name="Recording Mode" type="option">
+            <![CDATA[Image]]>
+
+            <value index="0" type="string">
+                <![CDATA[Image]]>
+</value>
+            <value index="1" type="string">
+                <![CDATA[Video]]>
+</value>
+            <value index="2" type="string">
+                <![CDATA[Stream]]>
+</value>
+        </property>
+        <property name="Recording Settings" type="map">
+            <![CDATA[[0]]]>
+</property>
+        <property name="Record" type="boolean">
+            <![CDATA[false]]>
+</property>
+        <property name="Show Properties" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+        <property name="Projection Transformation" type="matrix">
+            <![CDATA[((1.6965;0;0;0);(0;1.73205;0;0);(0;0;-1.06452;-1);(0;0;-1.03226;0))]]>
+</property>
+        <property name="Viewing Transformation" type="matrix">
+            <![CDATA[((0.0419829;0.0178347;0.329156;0);(0.0415461;0.328882;-0.0231195;0);(-0.32701;0.0440742;0.0393215;0);(-0.00143594;0.0130425;-1.75861;1))]]>
+</property>
+    </viewer>
+    <compositor name="CompositorSimple" filename="plugin_compositor_simple.dll" container="viewer">
+        <property name="Enabled" type="boolean">
+            <![CDATA[true]]>
+</property>
+        <property name="Background Image" type="handle"></property>
+        <property name="Background Mode" type="option">
+            <![CDATA[Center]]>
+
+            <value index="0" type="string">
+                <![CDATA[Center]]>
+</value>
+            <value index="1" type="string">
+                <![CDATA[Tile]]>
+</value>
+            <value index="2" type="string">
+                <![CDATA[Stretch]]>
+</value>
+        </property>
+        <property name="Show Contents" hidden="true" type="boolean">
+            <![CDATA[false]]>
+</property>
+        <property name="Show Properties" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+    </compositor>
+    <interactor name="InteractorPerspectiveCamera" filename="plugin_interactor_perspectivecamera.dll" container="viewer">
+        <property name="Enabled" type="boolean">
+            <![CDATA[true]]>
+</property>
+        <property name="Projection Transformation" type="matrix">
+            <![CDATA[((1.6965;0;0;0);(0;1.73205;0;0);(0;0;-1.06452;-1);(0;0;-1.03226;0))]]>
+</property>
+        <link name="Projection Transformation" container="viewer" property="Projection Transformation"></link>
+        <property name="Field of View" type="float" minimum="0" maximum="180">
+            <![CDATA[60]]>
+</property>
+        <property name="Near Plane" type="float" minimum="0" maximum="1000">
+            <![CDATA[0.5]]>
+</property>
+        <property name="Far Plane" type="float" minimum="0" maximum="1000">
+            <![CDATA[16]]>
+</property>
+        <property name="Stereo.Parallax" type="float" minimum="-1" maximum="1">
+            <![CDATA[0]]>
+</property>
+        <property name="Stereo.Separation" type="float" minimum="0" maximum="1">
+            <![CDATA[0.5]]>
+</property>
+        <property name="Stereo.Left Eye Projection Transformation" type="matrix">
+            <![CDATA[((1.6965;0;0;0);(0;1.73205;0;0);(-0.0163246;0;-1.06452;-1);(0;0;-1.03226;0))]]>
+</property>
+        <property name="Stereo.Right Eye Projection Transformation" type="matrix">
+            <![CDATA[((1.6965;0;0;0);(0;1.73205;0;0);(0.0163246;0;-1.06452;-1);(0;0;-1.03226;0))]]>
+</property>
+        <property name="Stereo.Eye" type="option">
+            <![CDATA[Center]]>
+
+            <value index="0" type="string">
+                <![CDATA[Center]]>
+</value>
+            <value index="1" type="string">
+                <![CDATA[Left]]>
+</value>
+            <value index="2" type="string">
+                <![CDATA[Right]]>
+</value>
+        </property>
+        <property name="Show Contents" hidden="true" type="boolean">
+            <![CDATA[false]]>
+</property>
+        <property name="Show Properties" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+    </interactor>
+    <interactor name="InteractorViewingTrackball" filename="plugin_interactor_viewingtrackball.dll" container="viewer">
+        <property name="Enabled" type="boolean">
+            <![CDATA[true]]>
+</property>
+        <property name="Bounding Box" type="box">
+            <![CDATA[((-0.444584;-0.363704;-0.170141);(0.599809;0.275972;0.170141))]]>
+</property>
+        <link name="Bounding Box" container="cow" property="Bounding Box"></link>
+        <property name="Look-At Box" type="box">
+            <![CDATA[((0;0;0);(0;0;0))]]>
+</property>
+        <property name="Default Transformation" type="matrix">
+            <![CDATA[((1;0;0;0);(0;1;0;0);(0;0;1;0);(0;0;0;1))]]>
+</property>
+        <property name="Camera Transformation" type="matrix">
+            <![CDATA[((0.0266826;0.011335;0.209198;0);(0.026405;0.209023;-0.0146938;0);(-0.207833;0.0280117;0.0249911;0);(0;0;0;1))]]>
+</property>
+        <property name="Viewing Transformation" type="matrix">
+            <![CDATA[((0.0419829;0.0178347;0.329156;0);(0.0415461;0.328882;-0.0231195;0);(-0.32701;0.0440742;0.0393215;0);(-0.00143594;0.0130425;-1.75861;1))]]>
+</property>
+        <link name="Viewing Transformation" container="viewer" property="Viewing Transformation"></link>
+        <property name="Default and Bounds" type="matrix">
+            <![CDATA[((1.57342;0;0;0);(0;1.57342;0;0);(0;0;1.57342;0);(-0.122117;0.0690197;0;1))]]>
+</property>
+        <property name="Linked Camera Transformation" type="matrix">
+            <![CDATA[((1;0;0;0);(0;1;0;0);(0;0;1;0);(0;0;0;1))]]>
+</property>
+        <property name="Use Linked Camera Transformation" type="boolean">
+            <![CDATA[false]]>
+</property>
+        <property name="Draw Navigation Cube" type="boolean">
+            <![CDATA[true]]>
+</property>
+        <property name="Stereo.Parallax" type="float" minimum="-1" maximum="1">
+            <![CDATA[0]]>
+</property>
+        <property name="Stereo.Separation" type="float" minimum="0" maximum="1">
+            <![CDATA[0.5]]>
+</property>
+        <property name="Stereo.Left Eye Viewing Transformation" type="matrix">
+            <![CDATA[((0.0419829;0.0178347;0.329156;0);(0.0415461;0.328882;-0.0231195;0);(-0.32701;0.0440742;0.0393215;0);(-0.0181026;0.0130425;-1.75861;1))]]>
+</property>
+        <property name="Stereo.Right Eye Viewing Transformation" type="matrix">
+            <![CDATA[((0.0419829;0.0178347;0.329156;0);(0.0415461;0.328882;-0.0231195;0);(-0.32701;0.0440742;0.0393215;0);(0.0152307;0.0130425;-1.75861;1))]]>
+</property>
+        <property name="Stereo.Eye" type="option">
+            <![CDATA[Center]]>
+
+            <value index="0" type="string">
+                <![CDATA[Center]]>
+</value>
+            <value index="1" type="string">
+                <![CDATA[Left]]>
+</value>
+            <value index="2" type="string">
+                <![CDATA[Right]]>
+</value>
+        </property>
+        <property name="Animate" type="boolean">
+            <![CDATA[false]]>
+</property>
+        <property name="Frame" type="integer" minimum="-2147483648" maximum="2147483647">
+            <![CDATA[0]]>
+</property>
+        <property name="Show Contents" hidden="true" type="boolean">
+            <![CDATA[false]]>
+</property>
+        <property name="Show Properties" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+    </interactor>
+    <renderer name="RendererTriangleMesh" filename="plugin_renderer_trianglemesh.dll" container="viewer">
+        <property name="Enabled" type="boolean">
+            <![CDATA[false]]>
+</property>
+        <property name="Projection Transformation" type="matrix">
+            <![CDATA[((1.6965;0;0;0);(0;1.73205;0;0);(0;0;-1.06452;-1);(0;0;-1.03226;0))]]>
+</property>
+        <link name="Projection Transformation" container="viewer" property="Projection Transformation"></link>
+        <property name="Viewing Transformation" type="matrix">
+            <![CDATA[((0.0419829;0.0178347;0.329156;0);(0.0415461;0.328882;-0.0231195;0);(-0.32701;0.0440742;0.0393215;0);(-0.00143594;0.0130425;-1.75861;1))]]>
+</property>
+        <link name="Viewing Transformation" container="viewer" property="Viewing Transformation"></link>
+        <property name="Mesh" type="handle">
+            <![CDATA[cow]]>
+</property>
+        <property name="Mode" type="option">
+            <![CDATA[Default]]>
+
+            <value index="0" type="string">
+                <![CDATA[Default]]>
+</value>
+            <value index="1" type="string">
+                <![CDATA[Normal]]>
+</value>
+            <value index="2" type="string">
+                <![CDATA[Fancy]]>
+</value>
+            <value index="3" type="string">
+                <![CDATA[Wireframe]]>
+</value>
+        </property>
+        <property name="Stylized" type="boolean">
+            <![CDATA[false]]>
+</property>
+        <property name="Color" type="color">
+            <![CDATA[(0;0;0;255)]]>
+</property>
+        <property name="Opacity" type="float" minimum="0" maximum="1">
+            <![CDATA[1]]>
+</property>
+        <property name="Selection" type="string"></property>
+        <property name="Groups" type="map">
+            <![CDATA[[0]]]>
+</property>
+        <property name="Show Contents" hidden="true" type="boolean">
+            <![CDATA[false]]>
+</property>
+        <property name="Show Properties" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+    </renderer>
+    <trianglemesh name="cow">
+        <property name="Bounding Box" type="box">
+            <![CDATA[((-0.444584;-0.363704;-0.170141);(0.599809;0.275972;0.170141))]]>
+</property>
+        <property name="Groups" type="map">
+            <![CDATA[[7]]]>
+
+            <value index="" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="face_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="hide_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="hoofs_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="horns_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="tail_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="udder_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+        </property>
+        <property name="Materials" type="map">
+            <![CDATA[[4]]]>
+
+            <value index="brown" type="map">
+                <![CDATA[[5]]]>
+
+                <value index="Ambient Color" type="color">
+                    <![CDATA[(0;0;0;255)]]>
+</value>
+                <value index="Diffuse Color" type="color">
+                    <![CDATA[(75;57;21;255)]]>
+</value>
+                <value index="Specular Color" type="color">
+                    <![CDATA[(0;0;0;255)]]>
+</value>
+                <value index="Shininess" type="float" minimum="0" maximum="128">
+                    <![CDATA[96.0784]]>
+</value>
+                <value index="Diffuse Texture" type="handle"></value>
+            </value>
+            <value index="gray" type="map">
+                <![CDATA[[5]]]>
+
+                <value index="Ambient Color" type="color">
+                    <![CDATA[(0;0;0;255)]]>
+</value>
+                <value index="Diffuse Color" type="color">
+                    <![CDATA[(54;52;46;255)]]>
+</value>
+                <value index="Specular Color" type="color">
+                    <![CDATA[(0;0;0;255)]]>
+</value>
+                <value index="Shininess" type="float" minimum="0" maximum="128">
+                    <![CDATA[96.0784]]>
+</value>
+                <value index="Diffuse Texture" type="handle"></value>
+            </value>
+            <value index="lightgray" type="map">
+                <![CDATA[[5]]]>
+
+                <value index="Ambient Color" type="color">
+                    <![CDATA[(0;0;0;255)]]>
+</value>
+                <value index="Diffuse Color" type="color">
+                    <![CDATA[(115;115;115;255)]]>
+</value>
+                <value index="Specular Color" type="color">
+                    <![CDATA[(0;0;0;255)]]>
+</value>
+                <value index="Shininess" type="float" minimum="0" maximum="128">
+                    <![CDATA[96.0784]]>
+</value>
+                <value index="Diffuse Texture" type="handle"></value>
+            </value>
+            <value index="pink" type="map">
+                <![CDATA[[5]]]>
+
+                <value index="Ambient Color" type="color">
+                    <![CDATA[(0;0;0;255)]]>
+</value>
+                <value index="Diffuse Color" type="color">
+                    <![CDATA[(158;80;80;255)]]>
+</value>
+                <value index="Specular Color" type="color">
+                    <![CDATA[(0;0;0;255)]]>
+</value>
+                <value index="Shininess" type="float" minimum="0" maximum="128">
+                    <![CDATA[96.0784]]>
+</value>
+                <value index="Diffuse Texture" type="handle"></value>
+            </value>
+        </property>
+        <property name="Show Properties" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+    </trianglemesh>
+    <importer name="ImporterObj" filename="plugin_importer_obj.dll" container="cow">
+        <property name="Filename" type="filename" filter="Wavefront OBJ Files (*.obj);All Files (*.*)">
+            <![CDATA[D:\TUWien\BachelorThesis\project\cow_triangles.obj]]>
+
+            <value index="0" type="string">
+                <![CDATA[D:\TUWien\BachelorThesis\project\cow_triangles.obj]]>
+</value>
+        </property>
+        <property name="Show Properties" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+    </importer>
+    <renderer name="RendererMeshSplitting" filename="plugin_renderer_meshsplitting.dll" container="viewer">
+        <property name="Enabled" type="boolean">
+            <![CDATA[true]]>
+</property>
+        <property name="Projection Transformation" type="matrix">
+            <![CDATA[((1.6965;0;0;0);(0;1.73205;0;0);(0;0;-1.06452;-1);(0;0;-1.03226;0))]]>
+</property>
+        <link name="Projection Transformation" container="viewer" property="Projection Transformation"></link>
+        <property name="Viewing Transformation" type="matrix">
+            <![CDATA[((0.0419829;0.0178347;0.329156;0);(0.0415461;0.328882;-0.0231195;0);(-0.32701;0.0440742;0.0393215;0);(-0.00143594;0.0130425;-1.75861;1))]]>
+</property>
+        <link name="Viewing Transformation" container="viewer" property="Viewing Transformation"></link>
+        <property name="Mesh" type="handle">
+            <![CDATA[cow]]>
+</property>
+        <property name="Mode" type="option">
+            <![CDATA[Default]]>
+
+            <value index="0" type="string">
+                <![CDATA[Default]]>
+</value>
+            <value index="1" type="string">
+                <![CDATA[Normal]]>
+</value>
+            <value index="2" type="string">
+                <![CDATA[Fancy]]>
+</value>
+            <value index="3" type="string">
+                <![CDATA[Wireframe]]>
+</value>
+        </property>
+        <property name="Stylized" type="boolean">
+            <![CDATA[false]]>
+</property>
+        <property name="Color" type="color">
+            <![CDATA[(0;0;0;255)]]>
+</property>
+        <property name="Opacity" type="float" minimum="0" maximum="1">
+            <![CDATA[1]]>
+</property>
+        <property name="Plane" type="handle"></property>
+        <property name="Selection" type="string"></property>
+        <property name="Groups" type="map">
+            <![CDATA[[6]]]>
+
+            <value index="hoofs_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="horns_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="face_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="hide_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="tail_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="udder_None_(null)" type="boolean">
+                <![CDATA[true]]>
+</value>
+        </property>
+        <property name="Show Contents" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+        <property name="Show Properties" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+        <property name="PlaneDepth" type="float" minimum="0" maximum="1">
+            <![CDATA[1]]>
+</property>
+    </renderer>
+    <trianglemesh name="plane">
+        <property name="Groups" type="map">
+            <![CDATA[[2]]]>
+
+            <value index="" type="boolean">
+                <![CDATA[true]]>
+</value>
+            <value index="pPlane1" type="boolean">
+                <![CDATA[true]]>
+</value>
+        </property>
+        <property name="Materials" type="map">
+            <![CDATA[[1]]]>
+
+            <value index="initialShadingGroup" type="map">
+                <![CDATA[[5]]]>
+
+                <value index="Ambient Color" type="color">
+                    <![CDATA[(0;0;0;255)]]>
+</value>
+                <value index="Diffuse Color" type="color">
+                    <![CDATA[(127;127;127;255)]]>
+</value>
+                <value index="Specular Color" type="color">
+                    <![CDATA[(255;255;255;255)]]>
+</value>
+                <value index="Shininess" type="float" minimum="0" maximum="128">
+                    <![CDATA[32]]>
+</value>
+                <value index="Diffuse Texture" type="handle"></value>
+            </value>
+        </property>
+        <property name="Bounding Box" type="box">
+            <![CDATA[((-3.66151;0;-3.66151);(3.66151;0;3.66151))]]>
+</property>
+        <property name="Show Properties" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+    </trianglemesh>
+    <importer name="ImporterObj1" filename="plugin_importer_obj.dll" container="plane">
+        <property name="Filename" type="filename" filter="Wavefront OBJ Files (*.obj);All Files (*.*)">
+            <![CDATA[D:\TUWien\BachelorThesis\project\plane.obj]]>
+
+            <value index="0" type="string">
+                <![CDATA[D:\TUWien\BachelorThesis\project\plane.obj]]>
+</value>
+        </property>
+        <property name="Show Properties" hidden="true" type="boolean">
+            <![CDATA[true]]>
+</property>
+    </importer>
+</volumeshop>

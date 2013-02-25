@@ -31,10 +31,7 @@ public:
 	{
 		m_modVariantObserver.connect(this,&RendererMeshSplitting::propertyModified);
 		m_modMeshObserver.connect(this,&RendererMeshSplitting::meshModified);
-		//
-		m_modMeshObserver.connect(this,&RendererMeshSplitting::meshModified);
 
-		//create params
 		GetPlugin().GetProperty("Projection Transformation").require(Variant::TypeMatrix());
 		GetPlugin().GetProperty("Projection Transformation").addObserver(&m_modVariantObserver);
 
@@ -56,29 +53,28 @@ public:
 		GetPlugin().GetProperty("Opacity").require(Variant::TypeFloat(1.0f, 0.0f, 1.0f));
 		GetPlugin().GetProperty("Opacity").addObserver(&m_modVariantObserver);
 
-		//todo adapt
-		GetPlugin().GetProperty("PlaneDepth").require(Variant::TypeFloat(1.0f, 0.0f, 1.0f));
-		GetPlugin().GetProperty("PlaneDepth").addObserver(&m_modVariantObserver);
-
-		GetPlugin().GetProperty("Plane").require(Variant::TypeHandle());
-		GetPlugin().GetProperty("Plane").addObserver(&m_modMeshObserver);
-
 		GetPlugin().GetProperty("Selection").require(Variant::TypeString());
 
+		GetPlugin().GetProperty("Plane Translation").require(Variant::TypeVector(Vector(0.0f, 0.0f, 0.0f)));
+		GetPlugin().GetProperty("Plane Translation").addObserver(&m_modVariantObserver);
+
+		GetPlugin().GetProperty("Plane Rotation Vector").require(Variant::TypeVector(Vector(0.0f, 0.0f, 1.0f)));
+		GetPlugin().GetProperty("Plane Rotation Vector").addObserver(&m_modVariantObserver);
+
+		GetPlugin().GetProperty("Plane Rotation Angle").require(Variant::TypeFloat(0.0f));
+		GetPlugin().GetProperty("Plane Rotation Angle").addObserver(&m_modVariantObserver);
+
+		GetPlugin().GetProperty("Plane Color").require(Variant::TypeColor(Color(0.0f, 0.0f, 1.0f, 1.0f)));
+		GetPlugin().GetProperty("Plane Color").addObserver(&m_modVariantObserver);
+
+		GetPlugin().GetProperty("Plane Scale").require(Variant::TypeVector(Vector(1.0f, 1.0f, 1.0f)));
+		GetPlugin().GetProperty("Plane Scale").addObserver(&m_modVariantObserver);
 
 		Handle hanMesh = GetPlugin().GetProperty("Mesh");
 		TriangleMesh *pMesh = hanMesh.GetResource<TriangleMesh>();
 
-		//
-		Handle hanPlane = GetPlugin().GetProperty("Plane");
-		TriangleMesh *pPlane = hanPlane.GetResource<TriangleMesh>();
-
 		if (pMesh)
 			updateGroups(*pMesh);
-
-		//
-		//if (pPlane)
-		//	updateGroups(*pPlane);
 
 		GetPlugin().GetProperty("Groups").addObserver(&m_modVariantObserver);
 	};
@@ -93,35 +89,19 @@ public:
 
 	virtual void display(Canvas & canCanvas)
 	{
-		//todo print 2 cows 
-
-		//todo print plane
-
 		const Matrix matProjectionTransformation = GetPlugin().GetProperty("Projection Transformation");
 		const Matrix matViewingTransformation = GetPlugin().GetProperty("Viewing Transformation");
+
 
 		Handle hanMesh = GetPlugin().GetProperty("Mesh");
 		TriangleMesh *pMesh = hanMesh.GetResource<TriangleMesh>();
 
-		//
-		//Handle hanPlane = GetPlugin().GetProperty("Plane");
-		//TriangleMesh *pPlane = hanPlane.GetResource<TriangleMesh>();
-		
-		if (!pMesh) {
+		if (!pMesh)
 			return;
-		}
-		//todo do better
-		//if (!pPlane) {
-		//	return;
-		//}
 
 		const Matrix matMeshTransformation = pMesh->GetProperty("Transformation",Matrix());
-		updateGroups(*pMesh);
-		glMultMatrixf(matMeshTransformation.Get());
 
-		//const Matrix matPlaneTransformation = pPlane->GetProperty("Transformation",Matrix());
-		//updateGroups(*pPlane);
-		//glMultMatrixf(matPlaneTransformation.Get());
+		updateGroups(*pMesh);
 
 		canCanvas.bind();
 
@@ -130,14 +110,21 @@ public:
 		glDepthFunc(GL_LESS);
 		glDisable(GL_BLEND);
 
+		// define the projection matrix
+
 		glMatrixMode(GL_PROJECTION);
 		glLoadMatrixf(matProjectionTransformation.Get());
 
+		// define the model view matrix
+
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
+		
+
+		// define the lighting
 
 		const float vfPosition[] = { 0.0f, 0.0f, 1.0f, 0.0f };
-		const float vfAmbient[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+		const float vfAmbient[] = { 0.6f, 0.6f, 0.6f, 1.0f };
 		const float vfDiffuse[] = { 0.9f, 0.9f, 0.9f, 1.0f };
 		const float vfSpecular[] = { 0.7f, 0.7f, 0.7f, 1.0f };
 
@@ -147,15 +134,15 @@ public:
 		glLightfv(GL_LIGHT0, GL_SPECULAR, vfSpecular);
 		glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 
+		// udate model view matrix after light position has been set
 		glLoadMatrixf(matViewingTransformation.Get());
-		
+		glMultMatrixf(matMeshTransformation.Get());
+
+
 		Color colColor = GetPlugin().GetProperty("Color");
 		colColor.SetNormalizedAlpha(float(GetPlugin().GetProperty("Opacity")));
 		glColor4ubv(colColor.Get());
 		glSecondaryColor3ub(255,255,255);
-
-		const std::string strMode = GetPlugin().GetProperty("Mode");
-		bool bStylized = GetPlugin().GetProperty("Stylized");
 
 		glDisable(GL_CULL_FACE);
 
@@ -170,303 +157,44 @@ public:
 			glEnable( GL_MULTISAMPLE_ARB );
 			glEnable( GL_SAMPLE_ALPHA_TO_COVERAGE_ARB );
 		}
+	
+		//draw model
+		renderMesh(*pMesh);
 
+		//reset model view matrix
+		glLoadIdentity();		
+		glLoadMatrixf(matViewingTransformation.Get());
+		
+		const Vector vecPlaneTranslation = GetPlugin().GetProperty("Plane Translation");
+		const Vector vecPlaneRotationVector = GetPlugin().GetProperty("Plane Rotation Vector");
+		const float vecPlaneRotationAngle = GetPlugin().GetProperty("Plane Rotation Angle");
+		const Color vecPlaneColor = GetPlugin().GetProperty("Plane Color");
+		const Vector vecPlaneScaling = GetPlugin().GetProperty("Plane Scale");
 
-		//if (!bStylized)
-		//{
-			if (strMode == "Normal")
-			{
-				m_shaShader.SetOption("normals",false);
-				m_shaShader.SetOption("mode","normal");
-				m_shaShader.bind();
+		//use user input for translation, rotation and color
+		glTranslatef(vecPlaneTranslation.GetX(), vecPlaneTranslation.GetY(), vecPlaneTranslation.GetZ());
+		glRotatef(vecPlaneRotationAngle, vecPlaneRotationVector.GetX(), vecPlaneRotationVector.GetY(), vecPlaneRotationVector.GetZ());
+		glColor4f(vecPlaneColor.GetNormalizedRed(), vecPlaneColor.GetNormalizedGreen(), vecPlaneColor.GetNormalizedBlue(), vecPlaneColor.GetNormalizedAlpha());
+		glScalef(vecPlaneScaling.GetX(), vecPlaneScaling.GetY(), 0.0f);
 
-				renderMesh(*pMesh,&m_shaShader);
-				//renderMesh(*pPlane,&m_shaShader);
-				m_shaShader.release();		
-			}
-			/*else if (strMode == "Fancy")
-			{
-				m_shaShader.SetOption("normals",false);
-				m_shaShader.SetOption("mode","fancy");
-				m_shaShader.bind();
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_LIGHTING);
+		glEnable(GL_COLOR_MATERIAL);
 
-				renderMesh(*pMesh,&m_shaShader);
-				m_shaShader.release();		
-			}
-			else if (strMode == "Wireframe")
-			{
-				m_shaShader.SetOption("normals",false);
-				m_shaShader.SetOption("mode","wireframe");
-				m_shaShader.SetParameter(GL_GEOMETRY_INPUT_TYPE_EXT, GL_TRIANGLES );
-				m_shaShader.SetParameter(GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP);
-				m_shaShader.SetParameter(GL_GEOMETRY_VERTICES_OUT_EXT, 3);
-
-				m_shaShader.bind();
-				renderMesh(*pMesh,&m_shaShader);
-				m_shaShader.release();
-			}*/
-			else
-			{
-				renderMesh(*pMesh);
-
-				glLoadIdentity();
-
-				//use vector 00depth
-				//vec3 
-				matViewingTransformation.GetTranslated()
-				/*
-				const Matrix matViewingTransformation = GetPlugin().GetProperty("Viewing Transformation");
-				const Matrix matPlaneTransformation = pMesh->GetProperty("Transformation",Matrix());
-				glMultMatrixf(matMeshTransformation.Get());
-				glLoadMatrixf(matViewingTransformation.Get());*/
-
-				glDisable(GL_TEXTURE_2D);
-				//glDisable(GL_LIGHTING);
-				glEnable(GL_COLOR_MATERIAL);
-				glColor4f(1,0,0,1);
-				glBegin(GL_QUADS);
-					glNormal3f(0, 0, 1);
-					glVertex3f(-1, -1, 0);
-					glVertex3f( 1, -1, 0);
-					glVertex3f( 1,  1, 0);
-					glVertex3f(-1,  1, 0);
-				glEnd();
-				glEnable(GL_TEXTURE_2D);
-				glEnable(GL_LIGHTING);
-				//renderMesh(*pPlane);
-			}
-		/*}
-		else
-		{
-			canCanvas.release();
-
-			m_fraFramebuffer.attach(GL_COLOR_ATTACHMENT0,&m_texColorTexture0);
-			m_fraFramebuffer.attach(GL_COLOR_ATTACHMENT1,&m_texColorTexture1);
-			m_fraFramebuffer.attach(GL_COLOR_ATTACHMENT2,&m_texColorTexture2);
-			m_fraFramebuffer.attach(GL_COLOR_ATTACHMENT3,&m_texColorTexture3);
-			m_fraFramebuffer.attach(GL_COLOR_ATTACHMENT4,&m_texColorTexture4);
-			m_fraFramebuffer.attach(GL_COLOR_ATTACHMENT5,&m_texColorTexture5);
-			m_fraFramebuffer.attach(GL_DEPTH_ATTACHMENT,&m_texDepthTexture);
-			m_fraFramebuffer.resize(m_uWidth,m_uHeight);
-
-			m_fraFramebuffer.bind();
-			glPushAttrib(GL_ALL_ATTRIB_BITS);
-
-			GLenum veDrawBuffers[3][2] = {{GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1},{GL_COLOR_ATTACHMENT2,GL_COLOR_ATTACHMENT3}, {GL_COLOR_ATTACHMENT4,GL_COLOR_ATTACHMENT5}};
-			Texture2D *vpTextures[3][2] = {{&m_texColorTexture0,&m_texColorTexture1},{&m_texColorTexture2,&m_texColorTexture3},{&m_texColorTexture4,&m_texColorTexture5}};
-
-			glClearColor(0.0f,0.0f,0.0f,0.0f);
-
-			glDrawBuffers(2,veDrawBuffers[2]);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			glDrawBuffers(2,veDrawBuffers[1]);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			glDrawBuffers(2,veDrawBuffers[0]);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LESS);
-			glDepthMask(GL_TRUE);
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_BLEND);
-
-			glMatrixMode(GL_PROJECTION);
-			glLoadMatrixf(matProjectionTransformation.Get());
-
-			glMatrixMode(GL_MODELVIEW);
-			glLoadMatrixf(matViewingTransformation.Get());
-			glMultMatrixf(matMeshTransformation.Get());
-
-			if (strMode == "Fancy")
-			{
-				m_shaShader.SetOption("normals",true);
-				m_shaShader.SetOption("mode","fancy");
-				m_shaShader.bind();
-
-				renderMesh(*pMesh,&m_shaShader);
-				m_shaShader.release();		
-			}
-			else if (strMode == "Wireframe")
-			{
-				m_shaShader.SetOption("normals",true);
-				m_shaShader.SetOption("mode","wireframe");
-				m_shaShader.SetParameter(GL_GEOMETRY_INPUT_TYPE_EXT, GL_TRIANGLES );
-				m_shaShader.SetParameter(GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP);
-				m_shaShader.SetParameter(GL_GEOMETRY_VERTICES_OUT_EXT, 3);
-
-				m_shaShader.bind();
-				renderMesh(*pMesh,&m_shaShader);
-				m_shaShader.release();
-			}
-			else
-			{
-				m_shaShader.SetOption("normals",true);
-				m_shaShader.SetOption("mode","normal");
-				m_shaShader.bind();
-
-				renderMesh(*pMesh,&m_shaShader);
-				renderMesh(*pPlane,&m_shaShader);
-				m_shaShader.release();		
-			}
-
-			glDepthFunc(GL_ALWAYS);
-			glDepthMask(GL_FALSE);
-			glDisable(GL_BLEND);
-
-			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
-			glLoadIdentity();
-
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glLoadIdentity();
-			m_shaShader.SetOption("mode","filter");
-			m_shaShader.bind();
-			glUniform1i(m_shaShader.GetUniformLocation("samColor"),0);
-			glUniform1i(m_shaShader.GetUniformLocation("samNormal"),1);
-
-
-			const int iIterations = 3;
-			unsigned int uCurrentDrawBufferIndex = 0;
-			unsigned int uCurrentTextureIndex = 1;
-			unsigned int uCurrentIndexOffset = 1;
-
-			GLenum *veCurrentDrawBuffers = veDrawBuffers[uCurrentIndexOffset];
-			Texture2D **vpCurrentTextures = vpTextures[0];
-
-			for (int i=iIterations;i>0;i--)
-			{
-				glDrawBuffers(2,veCurrentDrawBuffers);
-				glUniform1i(m_shaShader.GetUniformLocation("iSize"),1);
-
-				glActiveTexture(GL_TEXTURE0);		
-				vpCurrentTextures[0]->bind();
-
-				glActiveTexture(GL_TEXTURE1);
-				vpCurrentTextures[1]->bind();
-
-				glBegin(GL_QUADS);
-				glTexCoord2f(0.0f,0.0f);
-				glVertex2f(-1.0f,-1.0f);
-				glTexCoord2f(1.0f,0.0f);
-				glVertex2f(1.0f,-1.0f);
-				glTexCoord2f(1.0f,1.0f);
-				glVertex2f(1.0f,1.0f);
-				glTexCoord2f(0.0f,1.0f);
-				glVertex2f(-1.0f,1.0f);
-				glEnd();
-
-				glActiveTexture(GL_TEXTURE1);
-				vpCurrentTextures[1]->release();
-
-				glActiveTexture(GL_TEXTURE0);
-				vpCurrentTextures[0]->release();
-
-				uCurrentDrawBufferIndex = 1-uCurrentDrawBufferIndex;
-				uCurrentTextureIndex = 1-uCurrentTextureIndex;
-
-				veCurrentDrawBuffers = veDrawBuffers[uCurrentIndexOffset+uCurrentDrawBufferIndex];
-				vpCurrentTextures = vpTextures[uCurrentIndexOffset+uCurrentTextureIndex];
-			}
-
-
-			m_shaShader.release();
-
-			glMatrixMode(GL_PROJECTION);
-			glPopMatrix();
-
-			glMatrixMode(GL_MODELVIEW);
-			glPopMatrix();
-
-			glPopAttrib();
-			m_fraFramebuffer.release();
-
-
-			canCanvas.bind();
-
-			//////////////////////////////////////////////////////////////////////////
-			glDisable(GL_CULL_FACE);
-			glDepthFunc(GL_LESS);
-			glDepthMask(GL_TRUE);
-
-			glEnable(GL_BLEND);
-			glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-
-			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
-			glLoadIdentity();
-
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glLoadIdentity();
-
-			glActiveTexture(GL_TEXTURE0);		
-			vpTextures[0][0]->bind();
-
-			glActiveTexture(GL_TEXTURE1);		
-			vpTextures[0][1]->bind();
-
-			glActiveTexture(GL_TEXTURE2);		
-			vpCurrentTextures[0]->bind();
-
-			glActiveTexture(GL_TEXTURE3);		
-			vpCurrentTextures[1]->bind();
-
-			glActiveTexture(GL_TEXTURE4);
-			m_texDepthTexture.bind();
-
-			m_shaShader.SetOption("mode","stylize");
-			m_shaShader.bind();
-			glUniform1i(m_shaShader.GetUniformLocation("samColor"),0);
-			glUniform1i(m_shaShader.GetUniformLocation("samNormal"),1);
-			glUniform1i(m_shaShader.GetUniformLocation("samFilteredColor"),2);
-			glUniform1i(m_shaShader.GetUniformLocation("samFilteredNormal"),3);
-			glUniform1i(m_shaShader.GetUniformLocation("samDepth"),4);
-
-			glBegin(GL_QUADS);
-			glTexCoord2f(0.0f,0.0f);
-			glVertex2f(-1.0f,-1.0f);
-			glTexCoord2f(1.0f,0.0f);
-			glVertex2f(1.0f,-1.0f);
-			glTexCoord2f(1.0f,1.0f);
-			glVertex2f(1.0f,1.0f);
-			glTexCoord2f(0.0f,1.0f);
-			glVertex2f(-1.0f,1.0f);
-			glEnd();
-
-			m_shaShader.release();
-
-			glActiveTexture(GL_TEXTURE4);
-			m_texDepthTexture.release();
-
-			glActiveTexture(GL_TEXTURE3);		
-			vpCurrentTextures[1]->bind();
-
-			glActiveTexture(GL_TEXTURE2);		
-			vpCurrentTextures[0]->bind();
-
-			glActiveTexture(GL_TEXTURE1);		
-			vpTextures[0][1]->bind();
-
-			glActiveTexture(GL_TEXTURE0);		
-			vpTextures[0][0]->bind();
-
-			glMatrixMode(GL_PROJECTION);
-			glPopMatrix();
-
-			glMatrixMode(GL_MODELVIEW);
-			glPopMatrix();
-		}*/
-
+		//draw plane
+		glBegin(GL_QUADS);
+			glNormal3f(0, 0, 1);
+			glVertex3f(-1, -1, 0);
+			glVertex3f( 1, -1, 0);
+			glVertex3f( 1,  1, 0);
+			glVertex3f(-1,  1, 0);
+		glEnd();
 
 		canCanvas.release();
 	};
 
 	virtual void overlay(Canvas & canCanvas)
 	{
-		return;
 		if (!m_bPicking)
 			return;
 
@@ -476,26 +204,12 @@ public:
 		Handle hanMesh = GetPlugin().GetProperty("Mesh");
 		TriangleMesh *pMesh = hanMesh.GetResource<TriangleMesh>();
 
-		//
-		Handle hanPlane = GetPlugin().GetProperty("Plane");
-		TriangleMesh *pPlane = hanPlane.GetResource<TriangleMesh>();
-
-		if (!pMesh) {
+		if (!pMesh)
 			return;
-		}
-		//
-		if (!pPlane) {
-			return;
-		}
 
 		const Matrix matMeshTransformation = pMesh->GetProperty("Transformation",Matrix());
+
 		updateGroups(*pMesh);
-		glMultMatrixf(matMeshTransformation.Get());
-		
-		//does nothing
-		const Matrix matPlaneTransformation = pPlane->GetProperty("Transformation",Matrix());
-		updateGroups(*pPlane);
-		glMultMatrixf(matPlaneTransformation.Get());
 
 		canCanvas.bind();
 
@@ -504,7 +218,8 @@ public:
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadMatrixf(matViewingTransformation.Get());
-		
+		glMultMatrixf(matMeshTransformation.Get());
+
 		const std::string strGroupName = GetGroupName(*pMesh, m_vecPickingPosition);
 		GetPlugin().GetProperty("Selection") = strGroupName;
 		m_bPicking = false;
@@ -538,7 +253,6 @@ public:
 				(mouseReleasePosition.GetY() > m_kLastMouseDownPosition.GetY()-epsilon && mouseReleasePosition.GetY() < m_kLastMouseDownPosition.GetY()+epsilon) ) 
 			{
 				m_bPicking = true;
-				//todo do something with mouse coordinates
 				m_vecPickingPosition = conController.GetActiveCursorPosition();
 				GetPlugin().update(UPDATEFLAG_OVERLAY);
 			}
@@ -549,11 +263,7 @@ public:
 
 	virtual bool cursor(const Controller & conController)
 	{
-		//show mouse coordinates in console
-        m_vecPickingPosition = conController.GetActiveCursorPosition();
-        //printf("%f %f\n", m_vecPickingPosition.GetX(), m_vecPickingPosition.GetY());
-        return true;
-		//return false;
+		return false;
 	};
 
 	virtual const std::string GetButtonRole(const unsigned int uIndex) const
@@ -888,6 +598,7 @@ protected:
 		const Matrix matProjectionTransformation = GetPlugin().GetProperty("Projection Transformation");
 		const Matrix matViewingTransformation = GetPlugin().GetProperty("Viewing Transformation");
 		const Matrix matMeshTransformation = mesMesh.GetProperty("Transformation",Matrix());
+
 
 		const Matrix matTransformation = matProjectionTransformation * matViewingTransformation * matMeshTransformation;
 		const std::string strSelection = GetPlugin().GetProperty("Selection");

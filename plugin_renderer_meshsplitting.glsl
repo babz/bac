@@ -219,8 +219,6 @@
 				 (ambient  * gl_BackMaterial.ambient) +
 				 (diffuse  * gl_BackMaterial.diffuse) +
 				 (specular * gl_BackMaterial.specular)).rgb;
-
-		//color.rgb += gl_BackLightModelProduct.sceneColor.rgb;
 		
 		float nDotE = dot(n,-v);
 
@@ -258,12 +256,12 @@
 		if (isBeforePlane > 0.0) {
 			//if point is inside cow color it differently
 			//arg1 vertex normal, arg2 eyespace
-			if(!(dot(normalVertex, positionVertex) < 0.0)) {
-				gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			//if(!(dot(normalVertex, positionVertex) < 0.0)) {
+			if(!gl_FrontFacing) {
+				gl_FragData[0] = vec4(1.0, 0.0, 0.0, 1.0);
 			} else {
-				gl_FragColor = color;
-				//gl_FragData[0] = color;
-				//gl_FragData[1] = vec4(fGx,fGy,n.z,fDepth);
+				gl_FragData[0] = color;
+				gl_FragData[1] = vec4(fGx,fGy,n.z,fDepth);
 			}
 		} else {
 			discard;

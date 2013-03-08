@@ -68,13 +68,13 @@ public:
 		GetPlugin().GetProperty("Plane Rotation Angle").require(Variant::TypeFloat(0.0f));
 		GetPlugin().GetProperty("Plane Rotation Angle").addObserver(&m_modVariantObserver);
 
-		GetPlugin().GetProperty("Plane Color").require(Variant::TypeColor(Color(0.0f, 0.0f, 1.0f, 0.5f)));
+		GetPlugin().GetProperty("Plane Color").require(Variant::TypeColor(Color(0.0f, 0.0f, 1.0f, 0.2f)));
 		GetPlugin().GetProperty("Plane Color").addObserver(&m_modVariantObserver);
 
 		GetPlugin().GetProperty("Plane Scale").require(Variant::TypeVector(Vector(1.0f, 1.0f, 1.0f)));
 		GetPlugin().GetProperty("Plane Scale").addObserver(&m_modVariantObserver);
 
-		GetPlugin().GetProperty("Offset").require(Variant::TypeFloat(0.0f));
+		GetPlugin().GetProperty("Offset").require(Variant::TypeFloat(0.5f));
 		GetPlugin().GetProperty("Offset").addObserver(&m_modVariantObserver);
 
 		Handle hanMesh = GetPlugin().GetProperty("Mesh");
@@ -191,7 +191,7 @@ public:
 
 		glPushMatrix();
 		glTranslatef(modelTranslation.GetX(), modelTranslation.GetY(), modelTranslation.GetZ());
-		
+		m_shaShader.SetOption("normals",true);
 		m_shaShader.bind();
 		glUniform3f(m_shaShader.GetUniformLocation("uNormal"), planeNormal.GetX(), planeNormal.GetY(), planeNormal.GetZ());
 		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"), 0.0f + vecPlaneTranslation.GetX(), 0.0f + vecPlaneTranslation.GetY(), 0.0f + vecPlaneTranslation.GetZ());
@@ -201,6 +201,7 @@ public:
 		//second model
 		glPopMatrix();
 		glTranslatef(-modelTranslation.GetX(), -modelTranslation.GetY(), -modelTranslation.GetZ());
+		m_shaShader.SetOption("normals",true);
 		m_shaShader.bind();
 		glUniform3f(m_shaShader.GetUniformLocation("uNormal"), -planeNormal.GetX(), -planeNormal.GetY(), -planeNormal.GetZ());
 		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"), 0.0f + vecPlaneTranslation.GetX(), 0.0f + vecPlaneTranslation.GetY(), 0.0f + vecPlaneTranslation.GetZ());

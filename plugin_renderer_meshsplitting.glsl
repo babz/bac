@@ -228,7 +228,7 @@
 		color = clamp(color, 0.0, 1.0);
 		
 		color.rgb *= color.a;
-		//gl_FragData[0] = color;
+		gl_FragData[0] = color;
 		
 		//<option name="normals" value="true">
 		const float fEpsilon = 0.01;
@@ -246,25 +246,18 @@
 		float fZmax = max(-vecFar.z,fEpsilon);
 
 		float fDepth = log(clamp(-positionVertex.z,fZmin,fZmax)/fZmin)/log(fZmax/fZmin);
-		//gl_FragData[1] = vec4(fGx,fGy,n.z,fDepth);
+		gl_FragData[1] = vec4(fGx,fGy,n.z,fDepth);
 		//</option>
 		
 		
 		//(v - p) * N
 		float isBeforePlane = dot((varPoint - uPlanePoint), uNormal);
 		
-		if (isBeforePlane > 0.0) {
-			//if point is inside cow color it differently
-			//arg1 vertex normal, arg2 eyespace
-			//if(!(dot(normalVertex, positionVertex) < 0.0)) {
-			if(!gl_FrontFacing) {
-				gl_FragData[0] = vec4(1.0, 0.0, 0.0, 1.0);
-			} else {
-				gl_FragData[0] = color;
-				gl_FragData[1] = vec4(fGx,fGy,n.z,fDepth);
-			}
-		} else {
+		if(isBeforePlane <= 0.0) {
 			discard;
+		}
+		if(!gl_FrontFacing) {
+			gl_FragData[0] = vec4(1.0, 0.0, 0.0, 1.0);
 		}
 	}
 //</fragment>

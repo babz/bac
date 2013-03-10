@@ -198,12 +198,12 @@ public:
 		glEnd();
 
 		//shader access
-		m_shaShader.SetOption("normals",true);
+		/*m_shaShader.SetOption("normals",true);
 		m_shaShader.SetOption("mode","normal");
 		m_shaShader.bind();
 
 		renderMesh(*pMesh,&m_shaShader);
-		m_shaShader.release();
+		m_shaShader.release();*/
 
 		canCanvas.release();
 	};

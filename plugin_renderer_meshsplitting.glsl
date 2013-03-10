@@ -467,6 +467,8 @@
 	uniform sampler2D samColor;
 	uniform sampler2D samNormal;
 	uniform int iSize;
+	uniform vec3 normal;
+	uniform vec3 planePoint;
 
 	void main(void)
 	{

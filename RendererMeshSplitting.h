@@ -58,10 +58,10 @@ public:
 		GetPlugin().GetProperty("Plane Translation").require(Variant::TypeVector(Vector(0.0f, 0.0f, 0.0f)));
 		GetPlugin().GetProperty("Plane Translation").addObserver(&m_modVariantObserver);
 
-		GetPlugin().GetProperty("Plane Rotation Vector").require(Variant::TypeVector(Vector(0.0f, 0.0f, 1.0f)));
+		GetPlugin().GetProperty("Plane Rotation Vector").require(Variant::TypeVector(Vector(0.0f, 0.0f, 0.0f)));
 		GetPlugin().GetProperty("Plane Rotation Vector").addObserver(&m_modVariantObserver);
 
-		GetPlugin().GetProperty("Plane Rotation Angle").require(Variant::TypeFloat(0.0f));
+		GetPlugin().GetProperty("Plane Rotation Angle").require(Variant::TypeFloat(00.0f));
 		GetPlugin().GetProperty("Plane Rotation Angle").addObserver(&m_modVariantObserver);
 
 		GetPlugin().GetProperty("Plane Color").require(Variant::TypeColor(Color(0.0f, 0.0f, 1.0f, 1.0f)));
@@ -69,6 +69,9 @@ public:
 
 		GetPlugin().GetProperty("Plane Scale").require(Variant::TypeVector(Vector(1.0f, 1.0f, 1.0f)));
 		GetPlugin().GetProperty("Plane Scale").addObserver(&m_modVariantObserver);
+
+		GetPlugin().GetProperty("Offset").require(Variant::TypeFloat(0.0f));
+		GetPlugin().GetProperty("Offset").addObserver(&m_modVariantObserver);
 
 		Handle hanMesh = GetPlugin().GetProperty("Mesh");
 		TriangleMesh *pMesh = hanMesh.GetResource<TriangleMesh>();
@@ -161,6 +164,10 @@ public:
 		//draw model
 		renderMesh(*pMesh);
 
+		//draw second cow
+		glTranslatef(0.5, 0.0, 0.0);
+		renderMesh(*pMesh);
+
 		//reset model view matrix
 		glLoadIdentity();		
 		glLoadMatrixf(matViewingTransformation.Get());
@@ -189,6 +196,14 @@ public:
 			glVertex3f( 1,  1, 0);
 			glVertex3f(-1,  1, 0);
 		glEnd();
+
+		//shader access
+		m_shaShader.SetOption("normals",true);
+		m_shaShader.SetOption("mode","normal");
+		m_shaShader.bind();
+
+		renderMesh(*pMesh,&m_shaShader);
+		m_shaShader.release();
 
 		canCanvas.release();
 	};

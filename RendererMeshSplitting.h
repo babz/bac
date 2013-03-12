@@ -130,12 +130,18 @@ public:
 		const Color vecPlaneColor = GetPlugin().GetProperty("Plane Color");
 		const Vector vecPlaneScaling = GetPlugin().GetProperty("Plane Scale");
 
+		
+		// Compute normal vector in Model View Space without rotation
+		float arr[16] = {0.0f};
+		glLoadIdentity();
+		glLoadMatrixf(matViewingTransformation.Get());
+		glGetFloatv(GL_MODELVIEW_MATRIX, arr);
+		Matrix modelView(arr);
+		Vector normalModelViewSpaceWithoutRotation = modelView.GetRotated(Vector(0.0f, 0.0f, 1.0f));
+		normalModelViewSpaceWithoutRotation.normalize();
 
 		// Compute normal vector in Object Space
-		float arr[16] = {0.0f, 0.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 0.0f };
+		//float arr[16] = {0.0f};
 		glLoadIdentity();
 		glRotatef(vecPlaneRotationAngle, vecPlaneRotationVector.GetX(), vecPlaneRotationVector.GetY(), vecPlaneRotationVector.GetZ());
 		glGetFloatv(GL_MODELVIEW_MATRIX, arr);
@@ -151,13 +157,14 @@ public:
 		Matrix rotMatrixView(arr);
 		Vector normalModelViewSpace = rotMatrixView.GetRotated(Vector(0.0f, 0.0f, 1.0f));
 		normalModelViewSpace.normalize();
-		
 
 		// DRAW PLANE
-		glLoadIdentity();		
+		glLoadIdentity();
 		glLoadMatrixf(matViewingTransformation.Get());
 		//glTranslatef(vecPlaneTranslation.GetX(), vecPlaneTranslation.GetY(), vecPlaneTranslation.GetZ());
+		/*
 		glRotatef(vecPlaneRotationAngle, vecPlaneRotationVector.GetX(), vecPlaneRotationVector.GetY(), vecPlaneRotationVector.GetZ());
+		*/
 		//glScalef(vecPlaneScaling.GetX(), vecPlaneScaling.GetY(), 1.0f);
 		
 		glColor4f(vecPlaneColor.GetNormalizedRed(), vecPlaneColor.GetNormalizedGreen(), vecPlaneColor.GetNormalizedBlue(), vecPlaneColor.GetNormalizedAlpha());
@@ -215,23 +222,47 @@ public:
 			glEnable( GL_MULTISAMPLE_ARB );
 			glEnable( GL_SAMPLE_ALPHA_TO_COVERAGE_ARB );
 		}
-	
-		//draw first model	
+		
+		//drawing model WITHOUT PLANE ROTATION
+		//first model
+		m_shaShader.bind();
+		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),normalModelViewSpaceWithoutRotation.GetX(), normalModelViewSpaceWithoutRotation.GetY(), normalModelViewSpaceWithoutRotation.GetZ());
+		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),0.0f, 0.0f, 0.0f);
+		glTranslatef(0.0f, 0.0f, 0.0f);
+		renderMesh(*pMesh);
+		m_shaShader.release();
+		/*
+		//second model
+		m_shaShader.bind();
+		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),0.0f, 0.0f, -1.0f);
+		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),0.0f, 0.0f, 0.0f);
+		glTranslatef(0.0f, 0.0f, 0.0f);
+		renderMesh(*pMesh);
+		m_shaShader.release();
+		*/
+
+		/*
+		//translate first model
+		//glTranslatef(1.0f, 0.0f, 0.0f);
+		//draw first model
 		m_shaShader.bind();
 		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),normalModelViewSpace.GetX(), normalModelViewSpace.GetY(), normalModelViewSpace.GetZ());
-		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),0.0f, 0.0f, 0.0f);
+		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),0.0f+normalModelViewSpace.GetX(), 0.0f+normalModelViewSpace.GetY(), 1.0f+normalModelViewSpace.GetZ());
+		glTranslatef(1.0f, 0.0f, 0.0f);
 		renderMesh(*pMesh);
 		m_shaShader.release();
 		
+//TODO move cow with offset in z
 
+		
 		//draw second model
 		m_shaShader.bind();
 		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),-normalModelViewSpace.GetX(), -normalModelViewSpace.GetY(), -normalModelViewSpace.GetZ());
-		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),0.0f, 0.0f, 0.0f);
-		//glTranslatef(normalObjectSpace.GetX(), normalObjectSpace.GetY(), normalObjectSpace.GetZ());
+		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),0.0f-normalModelViewSpace.GetX(), 0.0f-normalModelViewSpace.GetY(), -1.0f-normalModelViewSpace.GetZ());
+		glTranslatef(-2.0f, 0.0f, 0.0f); //-1.0 translates the cow back to 0
 		renderMesh(*pMesh);
 		m_shaShader.release();
-
+		*/
 		// DRAW splitted objects END
 
 		canCanvas.release();
@@ -239,6 +270,7 @@ public:
 
 	virtual void overlay(Canvas & canCanvas)
 	{
+		return;
 		if (!m_bPicking)
 			return;
 

@@ -231,15 +231,15 @@ public:
 		glTranslatef(0.0f, 0.0f, 0.0f);
 		renderMesh(*pMesh);
 		m_shaShader.release();
-		/*
+		
 		//second model
 		m_shaShader.bind();
-		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),0.0f, 0.0f, -1.0f);
+		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),-normalModelViewSpaceWithoutRotation.GetX(), -normalModelViewSpaceWithoutRotation.GetY(), -normalModelViewSpaceWithoutRotation.GetZ());
 		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),0.0f, 0.0f, 0.0f);
 		glTranslatef(0.0f, 0.0f, 0.0f);
 		renderMesh(*pMesh);
 		m_shaShader.release();
-		*/
+		
 
 		/*
 		//translate first model

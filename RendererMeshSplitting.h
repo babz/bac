@@ -227,11 +227,18 @@ public:
 		//first model
 		m_shaShader.bind();
 		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),normalModelViewSpaceWithoutRotation.GetX(), normalModelViewSpaceWithoutRotation.GetY(), normalModelViewSpaceWithoutRotation.GetZ());
-		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),0.0f, 0.0f, 0.0f);
-		glTranslatef(0.0f, 0.0f, 0.0f);
+		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),1.0f, 0.0f, 0.0f);
+		glTranslatef(1.0f, 0.0f, 0.0f);
 		renderMesh(*pMesh);
 		m_shaShader.release();
-		
+
+/*
+PETER:
+uPlanePoint = [ppX + cX, ppY + cY, ppZ + cZ]
+translation of the cow is added to the plane -> cow moves with plane
+cX, cY, cZ = cow Translation
+*/
+		/*
 		//second model
 		m_shaShader.bind();
 		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),-normalModelViewSpaceWithoutRotation.GetX(), -normalModelViewSpaceWithoutRotation.GetY(), -normalModelViewSpaceWithoutRotation.GetZ());
@@ -239,7 +246,7 @@ public:
 		glTranslatef(0.0f, 0.0f, 0.0f);
 		renderMesh(*pMesh);
 		m_shaShader.release();
-		
+		*/
 
 		/*
 		//translate first model

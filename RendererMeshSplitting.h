@@ -1,5 +1,8 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
+
+
 #include "volumeshop.h"
 
 #include <list>
@@ -9,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+
 
 #include "RendererPlugin.h"
 #include "PluginInstance.h"
@@ -61,7 +65,7 @@ public:
 		GetPlugin().GetProperty("Plane Rotation Vector").require(Variant::TypeVector(Vector(0.0f, 0.0f, 0.0f)));
 		GetPlugin().GetProperty("Plane Rotation Vector").addObserver(&m_modVariantObserver);
 
-		GetPlugin().GetProperty("Plane Rotation Angle").require(Variant::TypeFloat(00.0f));
+		GetPlugin().GetProperty("Plane Rotation Angle").require(Variant::TypeFloat(0.0f));
 		GetPlugin().GetProperty("Plane Rotation Angle").addObserver(&m_modVariantObserver);
 
 		GetPlugin().GetProperty("Plane Color").require(Variant::TypeColor(Color(0.0f, 0.0f, 1.0f, 1.0f)));
@@ -129,63 +133,22 @@ public:
 		const float vecPlaneRotationAngle = GetPlugin().GetProperty("Plane Rotation Angle");
 		const Color vecPlaneColor = GetPlugin().GetProperty("Plane Color");
 		const Vector vecPlaneScaling = GetPlugin().GetProperty("Plane Scale");
+		const float offset = GetPlugin().GetProperty("Offset");
 
-		
-		// Compute normal vector in Model View Space without rotation
+		Vector planeNormal(0.0f, 0.0f, 1.0f);
+		glLoadIdentity();
+		glRotatef(vecPlaneRotationAngle, vecPlaneRotationVector.GetX(), vecPlaneRotationVector.GetY(), vecPlaneRotationVector.GetZ());
 		float arr[16] = {0.0f};
-		glLoadIdentity();
-		glLoadMatrixf(matViewingTransformation.Get());
 		glGetFloatv(GL_MODELVIEW_MATRIX, arr);
-		Matrix modelView(arr);
-		Vector normalModelViewSpaceWithoutRotation = modelView.GetRotated(Vector(0.0f, 0.0f, 1.0f));
-		normalModelViewSpaceWithoutRotation.normalize();
+		Matrix rotPlaneNormalMatrix(arr);
+		planeNormal = rotPlaneNormalMatrix.GetRotated(planeNormal);
+		planeNormal.normalize();
 
-		// Compute normal vector in Object Space
-		//float arr[16] = {0.0f};
-		glLoadIdentity();
-		glRotatef(vecPlaneRotationAngle, vecPlaneRotationVector.GetX(), vecPlaneRotationVector.GetY(), vecPlaneRotationVector.GetZ());
-		glGetFloatv(GL_MODELVIEW_MATRIX, arr);
-		Matrix rotMatrixObject(arr);
-		Vector normalObjectSpace = rotMatrixObject.GetRotated(Vector(0.0f, 0.0f, 1.0f));
-		normalObjectSpace.normalize();
+		Vector modelTranslation = planeNormal * offset;
 
-		// Compute normal vector in Model View Space
-		glLoadIdentity();
-		glLoadMatrixf(matViewingTransformation.Get());
-		glRotatef(vecPlaneRotationAngle, vecPlaneRotationVector.GetX(), vecPlaneRotationVector.GetY(), vecPlaneRotationVector.GetZ());
-		glGetFloatv(GL_MODELVIEW_MATRIX, arr);
-		Matrix rotMatrixView(arr);
-		Vector normalModelViewSpace = rotMatrixView.GetRotated(Vector(0.0f, 0.0f, 1.0f));
-		normalModelViewSpace.normalize();
-
-		// DRAW PLANE
-		glLoadIdentity();
-		glLoadMatrixf(matViewingTransformation.Get());
-		//glTranslatef(vecPlaneTranslation.GetX(), vecPlaneTranslation.GetY(), vecPlaneTranslation.GetZ());
-		/*
-		glRotatef(vecPlaneRotationAngle, vecPlaneRotationVector.GetX(), vecPlaneRotationVector.GetY(), vecPlaneRotationVector.GetZ());
-		*/
-		//glScalef(vecPlaneScaling.GetX(), vecPlaneScaling.GetY(), 1.0f);
-		
-		glColor4f(vecPlaneColor.GetNormalizedRed(), vecPlaneColor.GetNormalizedGreen(), vecPlaneColor.GetNormalizedBlue(), vecPlaneColor.GetNormalizedAlpha());
-		
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_LIGHTING);
-		glEnable(GL_COLOR_MATERIAL);
-		
-		glBegin(GL_QUADS);
-			glNormal3f(0, 0, 1);
-			glVertex3f(-1, -1, 0);
-			glVertex3f( 1, -1, 0);
-			glVertex3f( 1,  1, 0);
-			glVertex3f(-1,  1, 0);
-		glEnd();
-
-		// DRAW PLANE END
 		
 		// DRAW splitted objects
 
-		
 		// define the lighting
 
 		const float vfPosition[] = { 0.0f, 0.0f, 1.0f, 0.0f };
@@ -199,10 +162,9 @@ public:
 		glLightfv(GL_LIGHT0, GL_SPECULAR, vfSpecular);
 		glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 
-		// update model view matrix after light position has been set
-		glLoadIdentity();
-		glMultMatrixf(matViewingTransformation.Get());
-		glMultMatrixf(matMeshTransformation.Get());
+
+
+
 
 		Color colColor = GetPlugin().GetProperty("Color");
 		colColor.SetNormalizedAlpha(float(GetPlugin().GetProperty("Opacity")));
@@ -223,57 +185,61 @@ public:
 			glEnable( GL_SAMPLE_ALPHA_TO_COVERAGE_ARB );
 		}
 		
-		//drawing model WITHOUT PLANE ROTATION
-		//first model
+		//DRAW MODEL
+
+		// update model view matrix after light position has been set
+		glLoadIdentity();
+		glMultMatrixf(matViewingTransformation.Get());
+		glMultMatrixf(matMeshTransformation.Get());
+
+		glPushMatrix();
+		glTranslatef(modelTranslation.GetX(), modelTranslation.GetY(), modelTranslation.GetZ());
+		
 		m_shaShader.bind();
-		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),normalModelViewSpaceWithoutRotation.GetX(), normalModelViewSpaceWithoutRotation.GetY(), normalModelViewSpaceWithoutRotation.GetZ());
-		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),1.0f, 0.0f, 0.0f);
-		glTranslatef(1.0f, 0.0f, 0.0f);
+		glUniform3f(m_shaShader.GetUniformLocation("uNormal"), planeNormal.GetX(), planeNormal.GetY(), planeNormal.GetZ());
+		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"), 0.0f + vecPlaneTranslation.GetX(), 0.0f + vecPlaneTranslation.GetY(), 0.0f + vecPlaneTranslation.GetZ());
 		renderMesh(*pMesh);
 		m_shaShader.release();
 
-/*
-PETER:
-uPlanePoint = [ppX + cX, ppY + cY, ppZ + cZ]
-translation of the cow is added to the plane -> cow moves with plane
-cX, cY, cZ = cow Translation
-*/
-		/*
 		//second model
+		glPopMatrix();
+		glTranslatef(-modelTranslation.GetX(), -modelTranslation.GetY(), -modelTranslation.GetZ());
 		m_shaShader.bind();
-		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),-normalModelViewSpaceWithoutRotation.GetX(), -normalModelViewSpaceWithoutRotation.GetY(), -normalModelViewSpaceWithoutRotation.GetZ());
-		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),0.0f, 0.0f, 0.0f);
-		glTranslatef(0.0f, 0.0f, 0.0f);
+		glUniform3f(m_shaShader.GetUniformLocation("uNormal"), -planeNormal.GetX(), -planeNormal.GetY(), -planeNormal.GetZ());
+		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"), 0.0f + vecPlaneTranslation.GetX(), 0.0f + vecPlaneTranslation.GetY(), 0.0f + vecPlaneTranslation.GetZ());
 		renderMesh(*pMesh);
 		m_shaShader.release();
-		*/
 
-		/*
-		//translate first model
-		//glTranslatef(1.0f, 0.0f, 0.0f);
-		//draw first model
-		m_shaShader.bind();
-		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),normalModelViewSpace.GetX(), normalModelViewSpace.GetY(), normalModelViewSpace.GetZ());
-		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),0.0f+normalModelViewSpace.GetX(), 0.0f+normalModelViewSpace.GetY(), 1.0f+normalModelViewSpace.GetZ());
-		glTranslatef(1.0f, 0.0f, 0.0f);
-		renderMesh(*pMesh);
-		m_shaShader.release();
-		
-//TODO move cow with offset in z
+		//DRAW MODEL END
+		//DRAW SPLITTED OBJECTS END
 
+		// DRAW PLANE
+		glLoadIdentity();
+		glLoadMatrixf(matViewingTransformation.Get());
+		glTranslatef(vecPlaneTranslation.GetX(), vecPlaneTranslation.GetY(), vecPlaneTranslation.GetZ());
+		glRotatef(vecPlaneRotationAngle, vecPlaneRotationVector.GetX(), vecPlaneRotationVector.GetY(), vecPlaneRotationVector.GetZ());
+		glScalef(vecPlaneScaling.GetX(), vecPlaneScaling.GetY(), vecPlaneScaling.GetZ());
 		
-		//draw second model
-		m_shaShader.bind();
-		glUniform3f(m_shaShader.GetUniformLocation("uNormal"),-normalModelViewSpace.GetX(), -normalModelViewSpace.GetY(), -normalModelViewSpace.GetZ());
-		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"),0.0f-normalModelViewSpace.GetX(), 0.0f-normalModelViewSpace.GetY(), -1.0f-normalModelViewSpace.GetZ());
-		glTranslatef(-2.0f, 0.0f, 0.0f); //-1.0 translates the cow back to 0
-		renderMesh(*pMesh);
-		m_shaShader.release();
-		*/
-		// DRAW splitted objects END
+		glColor4f(vecPlaneColor.GetNormalizedRed(), vecPlaneColor.GetNormalizedGreen(), vecPlaneColor.GetNormalizedBlue(), vecPlaneColor.GetNormalizedAlpha());
+		
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_LIGHTING);
+		glEnable(GL_COLOR_MATERIAL);
+		
+		glBegin(GL_QUADS);
+			glNormal3f(0, 0, 1);
+			glVertex3f(-1, -1, 0);
+			glVertex3f( 1, -1, 0);
+			glVertex3f( 1,  1, 0);
+			glVertex3f(-1,  1, 0);
+		glEnd();
+
+		//DRAW PLANE END
 
 		canCanvas.release();
 	};
+
+
 
 	virtual void overlay(Canvas & canCanvas)
 	{

@@ -54,7 +54,7 @@
             <![CDATA[((1.6965;0;0;0);(0;1.73205;0;0);(0;0;-1.06452;-1);(0;0;-1.03226;0))]]>
 </property>
         <property name="Viewing Transformation" type="matrix">
-            <![CDATA[((-0.151239;0.0222069;0.463693;0);(0.021163;0.4875;-0.0164432;0);(-0.463739;0.0150075;-0.151974;0);(0.0126664;0.0196611;-1.76876;1))]]>
+            <![CDATA[((0.0977794;-0.0503253;0.618576;0);(0.0613671;0.623915;0.041062;0);(-0.617575;0.0540325;0.102019;0);(-0.00489697;0.0312745;-1.77826;1))]]>
 </property>
     </viewer>
     <compositor name="CompositorSimple" filename="plugin_compositor_simple.dll" container="viewer">
@@ -146,10 +146,10 @@
             <![CDATA[((1;0;0;0);(0;1;0;0);(0;0;1;0);(0;0;0;1))]]>
 </property>
         <property name="Camera Transformation" type="matrix">
-            <![CDATA[((-0.0961214;0.0141138;0.294703;0);(0.0134503;0.309834;-0.0104506;0);(-0.294733;0.00953811;-0.0965881;0);(0;0;0;1))]]>
+            <![CDATA[((0.0621444;-0.0319846;0.39314;0);(0.0390023;0.396534;0.0260973;0);(-0.392504;0.0343408;0.0648389;0);(0;0;0;1))]]>
 </property>
         <property name="Viewing Transformation" type="matrix">
-            <![CDATA[((-0.151239;0.0222069;0.463693;0);(0.021163;0.4875;-0.0164432;0);(-0.463739;0.0150075;-0.151974;0);(0.0126664;0.0196611;-1.76876;1))]]>
+            <![CDATA[((0.0977794;-0.0503253;0.618576;0);(0.0613671;0.623915;0.041062;0);(-0.617575;0.0540325;0.102019;0);(-0.00489697;0.0312745;-1.77826;1))]]>
 </property>
         <link name="Viewing Transformation" container="viewer" property="Viewing Transformation"></link>
         <property name="Default and Bounds" type="matrix">
@@ -171,10 +171,10 @@
             <![CDATA[0.5]]>
 </property>
         <property name="Stereo.Left Eye Viewing Transformation" type="matrix">
-            <![CDATA[((-0.151239;0.0222069;0.463693;0);(0.021163;0.4875;-0.0164432;0);(-0.463739;0.0150075;-0.151974;0);(-0.00400026;0.0196611;-1.76876;1))]]>
+            <![CDATA[((0.0977794;-0.0503253;0.618576;0);(0.0613671;0.623915;0.041062;0);(-0.617575;0.0540325;0.102019;0);(-0.0215636;0.0312745;-1.77826;1))]]>
 </property>
         <property name="Stereo.Right Eye Viewing Transformation" type="matrix">
-            <![CDATA[((-0.151239;0.0222069;0.463693;0);(0.021163;0.4875;-0.0164432;0);(-0.463739;0.0150075;-0.151974;0);(0.0293331;0.0196611;-1.76876;1))]]>
+            <![CDATA[((0.0977794;-0.0503253;0.618576;0);(0.0613671;0.623915;0.041062;0);(-0.617575;0.0540325;0.102019;0);(0.0117697;0.0312745;-1.77826;1))]]>
 </property>
         <property name="Stereo.Eye" type="option">
             <![CDATA[Center]]>
@@ -211,7 +211,7 @@
 </property>
         <link name="Projection Transformation" container="viewer" property="Projection Transformation"></link>
         <property name="Viewing Transformation" type="matrix">
-            <![CDATA[((-0.151239;0.0222069;0.463693;0);(0.021163;0.4875;-0.0164432;0);(-0.463739;0.0150075;-0.151974;0);(0.0126664;0.0196611;-1.76876;1))]]>
+            <![CDATA[((0.0977794;-0.0503253;0.618576;0);(0.0613671;0.623915;0.041062;0);(-0.617575;0.0540325;0.102019;0);(-0.00489697;0.0312745;-1.77826;1))]]>
 </property>
         <link name="Viewing Transformation" container="viewer" property="Viewing Transformation"></link>
         <property name="Mesh" type="handle">
@@ -379,7 +379,7 @@
 </property>
         <link name="Projection Transformation" container="InteractorPerspectiveCamera" property="Projection Transformation"></link>
         <property name="Viewing Transformation" type="matrix">
-            <![CDATA[((-0.151239;0.0222069;0.463693;0);(0.021163;0.4875;-0.0164432;0);(-0.463739;0.0150075;-0.151974;0);(0.0126664;0.0196611;-1.76876;1))]]>
+            <![CDATA[((0.0977794;-0.0503253;0.618576;0);(0.0613671;0.623915;0.041062;0);(-0.617575;0.0540325;0.102019;0);(-0.00489697;0.0312745;-1.77826;1))]]>
 </property>
         <link name="Viewing Transformation" container="InteractorViewingTrackball" property="Viewing Transformation"></link>
         <property name="Mesh" type="handle">
@@ -444,17 +444,17 @@
         <property name="Offset" type="float" minimum="-3.40282e+038" maximum="3.40282e+038">
             <![CDATA[0.5]]>
 </property>
-        <property name="Plane Translation" type="vector">
-            <![CDATA[(0;0;0)]]>
+        <property name="Plane Rotation Angle" type="float" minimum="-3.40282e+038" maximum="3.40282e+038">
+            <![CDATA[0]]>
 </property>
         <property name="Plane Rotation Vector" type="vector">
             <![CDATA[(0;0;0)]]>
 </property>
-        <property name="Plane Rotation Angle" type="float" minimum="-3.40282e+038" maximum="3.40282e+038">
-            <![CDATA[90]]>
+        <property name="Plane Translation" type="vector">
+            <![CDATA[(0;0;0)]]>
 </property>
         <property name="Plane Color" type="color">
-            <![CDATA[(0;0;255;255)]]>
+            <![CDATA[(0;0;255;100)]]>
 </property>
         <property name="Plane Scale" type="vector">
             <![CDATA[(1;1;1)]]>

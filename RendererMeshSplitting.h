@@ -68,7 +68,7 @@ public:
 		GetPlugin().GetProperty("Plane Rotation Angle").require(Variant::TypeFloat(0.0f));
 		GetPlugin().GetProperty("Plane Rotation Angle").addObserver(&m_modVariantObserver);
 
-		GetPlugin().GetProperty("Plane Color").require(Variant::TypeColor(Color(0.0f, 0.0f, 1.0f, 1.0f)));
+		GetPlugin().GetProperty("Plane Color").require(Variant::TypeColor(Color(0.0f, 0.0f, 1.0f, 0.5f)));
 		GetPlugin().GetProperty("Plane Color").addObserver(&m_modVariantObserver);
 
 		GetPlugin().GetProperty("Plane Scale").require(Variant::TypeVector(Vector(1.0f, 1.0f, 1.0f)));
@@ -135,6 +135,7 @@ public:
 		const Vector vecPlaneScaling = GetPlugin().GetProperty("Plane Scale");
 		const float offset = GetPlugin().GetProperty("Offset");
 
+		//rotate plane normal when plane rotates
 		Vector planeNormal(0.0f, 0.0f, 1.0f);
 		glLoadIdentity();
 		glRotatef(vecPlaneRotationAngle, vecPlaneRotationVector.GetX(), vecPlaneRotationVector.GetY(), vecPlaneRotationVector.GetZ());
@@ -144,10 +145,9 @@ public:
 		planeNormal = rotPlaneNormalMatrix.GetRotated(planeNormal);
 		planeNormal.normalize();
 
+		//translate model with offset
 		Vector modelTranslation = planeNormal * offset;
 
-		
-		// DRAW splitted objects
 
 		// define the lighting
 
@@ -161,9 +161,6 @@ public:
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, vfDiffuse);
 		glLightfv(GL_LIGHT0, GL_SPECULAR, vfSpecular);
 		glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-
-
-
 
 
 		Color colColor = GetPlugin().GetProperty("Color");
@@ -184,7 +181,7 @@ public:
 			glEnable( GL_MULTISAMPLE_ARB );
 			glEnable( GL_SAMPLE_ALPHA_TO_COVERAGE_ARB );
 		}
-		
+
 		//DRAW MODEL
 
 		// update model view matrix after light position has been set
@@ -211,7 +208,6 @@ public:
 		m_shaShader.release();
 
 		//DRAW MODEL END
-		//DRAW SPLITTED OBJECTS END
 
 		// DRAW PLANE
 		glLoadIdentity();
@@ -626,6 +622,7 @@ protected:
 						glEnable(GL_COLOR_MATERIAL);
 					}
 
+					//glColor4f(1.0, 1.0, 0.0, 1.0);
 					glDrawElements(GL_TRIANGLES,indices.GetArrayVertices(),indices.GetElementOpenGLType(),indices.Get());
 
 					if (iDiffuseTextureUnit != -1)

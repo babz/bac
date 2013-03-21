@@ -14,6 +14,8 @@
 	
 		gl_Position = ftransform(); //gl_ModelViewProjectionMatrix * gl_Vertex;
 		varPoint = gl_Vertex.xyz;
+		gl_FrontColor = gl_Color;
+		gl_BackColor = vec4(1.0, 0.0, 1.0, 0.5);
 	}
 //</vertex>
 
@@ -61,6 +63,7 @@
 		
 		if (isBeforePlane > 0.0) {
 			//if point is inside cow - give it color (like backface culling; based on N)
+			//uPlanePoint = gl_Color;
 			
 			//Phong shading
 			directionalLight(gl_LightSource[0], N, V, gl_FrontMaterial.shininess, ambient, diffuse, specular);

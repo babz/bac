@@ -239,7 +239,6 @@ public:
 
 	virtual void overlay(Canvas & canCanvas)
 	{
-		return;
 		if (!m_bPicking)
 			return;
 

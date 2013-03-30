@@ -16,6 +16,11 @@
 	
 		gl_Position = ftransform(); //gl_ModelViewProjectionMatrix * gl_Vertex;
 		varPoint = gl_Vertex.xyz;
+		
+		gl_FrontColor = gl_Color;
+		gl_BackColor.rgb = vec3(1.0, 0.0, 0.0);
+		gl_FrontSecondaryColor = gl_SecondaryColor;
+		gl_BackSecondaryColor.rgb = vec3(1.0, 0.0, 0.0);
 	}
 //</vertex>
 
@@ -195,13 +200,25 @@
 		// to denote the number of lights. A better option may be passing
 		// in the number of lights as a uniform or replacing the current
 		// value with a smaller value.
+		if(gl_FrontFacing){
 		calculateLighting(gl_MaxLights, n, v, gl_FrontMaterial.shininess,
 						  ambient, diffuse, specular);
+		} else {
+		calculateLighting(gl_MaxLights, n, v, gl_FrontMaterial.shininess,
+						  ambient, diffuse, specular);
+		}
 						  
+		if(!gl_FrontFacing){
+		color.rgb  = (vec3(1.0, 0.0, 0.0) + 
+				 (ambient  * gl_FrontMaterial.ambient) +
+				 (diffuse  * gl_FrontMaterial.diffuse) +
+				 (specular * gl_FrontMaterial.specular)).rgb;
+		} else {
 		color.rgb  = (gl_FrontLightModelProduct.sceneColor  +
 				 (ambient  * gl_FrontMaterial.ambient) +
 				 (diffuse  * gl_FrontMaterial.diffuse) +
 				 (specular * gl_FrontMaterial.specular)).rgb;
+		}
 
 
 		// Re-initialize the contributions for the back
@@ -212,13 +229,25 @@
 	          
 		// Now caculate the back contribution. All that needs to be
 		// done is to flip the normal.
+		if(gl_FrontFacing) {
 		calculateLighting(gl_MaxLights, -n, v, gl_BackMaterial.shininess,
 						  ambient, diffuse, specular);
-		
+		} else {
+		calculateLighting(gl_MaxLights, -n, v, gl_BackMaterial.shininess,
+						  ambient, diffuse, specular);
+		}
+		/*
+		if(!gl_FrontFacing) {
+		color.rgb += (vec3(1.0, 0.0, 0.0)  +
+			 (ambient  * gl_BackMaterial.ambient) +
+			 (diffuse  * gl_BackMaterial.diffuse) +
+			 (specular * gl_BackMaterial.specular)).rgb;
+		} else {*/
 		color.rgb += (gl_BackLightModelProduct.sceneColor  +
-				 (ambient  * gl_BackMaterial.ambient) +
-				 (diffuse  * gl_BackMaterial.diffuse) +
-				 (specular * gl_BackMaterial.specular)).rgb;
+			 (ambient  * gl_BackMaterial.ambient) +
+			 (diffuse  * gl_BackMaterial.diffuse) +
+			 (specular * gl_BackMaterial.specular)).rgb;
+		//}
 		
 		float nDotE = dot(n,-v);
 
@@ -255,9 +284,6 @@
 		
 		if(isBeforePlane <= 0.0) {
 			discard;
-		}
-		if(!gl_FrontFacing) {
-			gl_FragData[0] = vec4(1.0, 0.0, 0.0, 1.0);
 		}
 	}
 //</fragment>

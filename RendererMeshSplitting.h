@@ -152,9 +152,10 @@ public:
 		// define the lighting
 
 		const float vfPosition[] = { 0.0f, 0.0f, 1.0f, 0.0f };
-		const float vfAmbient[] = { 0.6f, 0.6f, 0.6f, 1.0f };
+		const float vfAmbient[] = { 0.7f, 0.7f, 0.7f, 1.0f };
 		const float vfDiffuse[] = { 0.9f, 0.9f, 0.9f, 1.0f };
-		const float vfSpecular[] = { 0.7f, 0.7f, 0.7f, 1.0f };
+		const float vfSpecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
 
 		glLightfv(GL_LIGHT0, GL_POSITION, vfPosition);
 		glLightfv(GL_LIGHT0, GL_AMBIENT, vfAmbient);
@@ -189,19 +190,18 @@ public:
 		glMultMatrixf(matViewingTransformation.Get());
 		glMultMatrixf(matMeshTransformation.Get());
 
+        // first half of model
 		glPushMatrix();
 		glTranslatef(modelTranslation.GetX(), modelTranslation.GetY(), modelTranslation.GetZ());
-		m_shaShader.SetOption("normals",true);
 		m_shaShader.bind();
 		glUniform3f(m_shaShader.GetUniformLocation("uNormal"), planeNormal.GetX(), planeNormal.GetY(), planeNormal.GetZ());
 		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"), 0.0f + vecPlaneTranslation.GetX(), 0.0f + vecPlaneTranslation.GetY(), 0.0f + vecPlaneTranslation.GetZ());
 		renderMesh(*pMesh);
 		m_shaShader.release();
 
-		//second model
+		// second half of model
 		glPopMatrix();
 		glTranslatef(-modelTranslation.GetX(), -modelTranslation.GetY(), -modelTranslation.GetZ());
-		m_shaShader.SetOption("normals",true);
 		m_shaShader.bind();
 		glUniform3f(m_shaShader.GetUniformLocation("uNormal"), -planeNormal.GetX(), -planeNormal.GetY(), -planeNormal.GetZ());
 		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"), 0.0f + vecPlaneTranslation.GetX(), 0.0f + vecPlaneTranslation.GetY(), 0.0f + vecPlaneTranslation.GetZ());

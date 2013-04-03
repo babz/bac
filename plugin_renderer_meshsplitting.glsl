@@ -1,26 +1,31 @@
 #version 120
 
 //<vertex>
-	varying vec3 varPoint;
+	uniform vec3 uNormal;
 	
-	varying vec3 positionVertex;
-	varying vec3 normalVertex;
+	varying vec3 vVertexPositionWorldSpace;
+	varying vec3 vVertexPosition;	
+	varying vec3 vVertexNormal;	
+
+	varying vec3 vPlaneNormal;
+	
 	
 	void main()
 	{		
+	    vVertexPositionWorldSpace = gl_Vertex.xyz; // World space
+	    
 		// Transform the vertex position to eye space
-		positionVertex = vec3(gl_ModelViewMatrix * gl_Vertex);
+		gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex; // ftransform() is deprecated
+		vVertexPosition = gl_Position.xyz;
 	       
-		// Calculate the normal
-		normalVertex = normalize(gl_NormalMatrix * gl_Normal);
-	
-		gl_Position = ftransform(); //gl_ModelViewProjectionMatrix * gl_Vertex;
-		varPoint = gl_Vertex.xyz;
+		// Transform the vertex normal to eye space
+		vVertexNormal = normalize(gl_NormalMatrix * gl_Normal);
+		vPlaneNormal = normalize (gl_NormalMatrix * uNormal);
 		
 		gl_FrontColor = gl_Color;
-		gl_BackColor.rgb = vec3(1.0, 0.0, 0.0);
+		gl_BackColor = vec4(0.0, 0.0, 1.0, 1.0);
 		gl_FrontSecondaryColor = gl_SecondaryColor;
-		gl_BackSecondaryColor.rgb = vec3(1.0, 0.0, 0.0);
+		gl_BackSecondaryColor = vec4(0.0, 0.0, 1.0, 1.0);
 	}
 //</vertex>
 
@@ -29,10 +34,11 @@
 	uniform vec3 uPlanePoint;
 	uniform vec3 uNormal;
 		
-	varying vec3 varPoint;
+	varying vec3 vVertexPositionWorldSpace;
+	varying vec3 vVertexPosition;	
+	varying vec3 vVertexNormal;	
 
-	varying vec3 positionVertex;
-	varying vec3 normalVertex;
+	varying vec3 vPlaneNormal;
 	
 	const vec4 AMBIENT_BLACK = vec4(0.0, 0.0, 0.0, 1.0);
 	const vec4 DEFAULT_BLACK = vec4(0.0, 0.0, 0.0, 0.0);
@@ -168,7 +174,7 @@
 				else if (light.spotCutoff == 180.0)
 					pointLight(light, N, V, shininess, ambient, diffuse, specular);
 				else
-					 spotLight(light, N, V, shininess, ambient, diffuse, specular);
+					spotLight(light, N, V, shininess, ambient, diffuse, specular);
 			}
 		}
 	}
@@ -186,104 +192,47 @@
 
 	void main()
 	{		
-		vec3 v = normalize(positionVertex);
-		vec3 n = normalize(normalVertex);
-		
-		vec4 ambient, diffuse, specular, color;
-		
-		// Initialize the contributions.
-		ambient  = vec4(0.0);
-		diffuse  = vec4(0.0);
-		specular = vec4(0.0);
-		
-		// In this case the built in uniform gl_MaxLights is used
-		// to denote the number of lights. A better option may be passing
-		// in the number of lights as a uniform or replacing the current
-		// value with a smaller value.
-		if(gl_FrontFacing){
-		calculateLighting(gl_MaxLights, n, v, gl_FrontMaterial.shininess,
-						  ambient, diffuse, specular);
-		} else {
-		calculateLighting(gl_MaxLights, n, v, gl_FrontMaterial.shininess,
-						  ambient, diffuse, specular);
-		}
-						  
-		if(!gl_FrontFacing){
-		color.rgb  = (vec3(1.0, 0.0, 0.0) + 
-				 (ambient  * gl_FrontMaterial.ambient) +
-				 (diffuse  * gl_FrontMaterial.diffuse) +
-				 (specular * gl_FrontMaterial.specular)).rgb;
-		} else {
-		color.rgb  = (gl_FrontLightModelProduct.sceneColor  +
-				 (ambient  * gl_FrontMaterial.ambient) +
-				 (diffuse  * gl_FrontMaterial.diffuse) +
-				 (specular * gl_FrontMaterial.specular)).rgb;
-		}
-
-
-		// Re-initialize the contributions for the back
-		// pass over the lights
-		ambient  = vec4(0.0);
-		diffuse  = vec4(0.0);
-		specular = vec4(0.0);
-	          
-		// Now caculate the back contribution. All that needs to be
-		// done is to flip the normal.
-		if(gl_FrontFacing) {
-		calculateLighting(gl_MaxLights, -n, v, gl_BackMaterial.shininess,
-						  ambient, diffuse, specular);
-		} else {
-		calculateLighting(gl_MaxLights, -n, v, gl_BackMaterial.shininess,
-						  ambient, diffuse, specular);
-		}
-		/*
-		if(!gl_FrontFacing) {
-		color.rgb += (vec3(1.0, 0.0, 0.0)  +
-			 (ambient  * gl_BackMaterial.ambient) +
-			 (diffuse  * gl_BackMaterial.diffuse) +
-			 (specular * gl_BackMaterial.specular)).rgb;
-		} else {*/
-		color.rgb += (gl_BackLightModelProduct.sceneColor  +
-			 (ambient  * gl_BackMaterial.ambient) +
-			 (diffuse  * gl_BackMaterial.diffuse) +
-			 (specular * gl_BackMaterial.specular)).rgb;
-		//}
-		
-		float nDotE = dot(n,-v);
-
-		float fOpacity = max(gl_FrontMaterial.diffuse.a,gl_BackMaterial.diffuse.a);
-
-		color.a = mix((smoothstep(0.0,0.75,1.0-(pow(abs(nDotE),fOpacity)))),fOpacity,fOpacity);// * smoothstep(0.0,1.0,abs(nDotE));
-		color = clamp(color, 0.0, 1.0);
-		
-		color.rgb *= color.a;
-		gl_FragData[0] = color;
-		
-		//<option name="normals" value="true">
-		const float fEpsilon = 0.01;
-		float fGs = n.z < fEpsilon ? 1.0 / fEpsilon : 1.0 / n.z;
-		float fGx  = -n.x*fGs; 
-		float fGy  = -n.y*fGs;
-
-		vec4 vecNear = gl_ProjectionMatrixInverse*vec4(0.0,0.0,-1.0,1.0);
-		vecNear /= vecNear.w;
-
-		vec4 vecFar = gl_ProjectionMatrixInverse*vec4(0.0,0.0,1.0,1.0);
-		vecFar /= vecFar.w;
-		
-		float fZmin = max(-vecNear.z,fEpsilon);
-		float fZmax = max(-vecFar.z,fEpsilon);
-
-		float fDepth = log(clamp(-positionVertex.z,fZmin,fZmax)/fZmin)/log(fZmax/fZmin);
-		gl_FragData[1] = vec4(fGx,fGy,n.z,fDepth);
-		//</option>
-		
-		
-		//(v - p) * N
-		float isBeforePlane = dot((varPoint - uPlanePoint), uNormal);
-		
+	
+		// discard pixels behind the cutting plane
+	    //(v - p) * N
+		float isBeforePlane = dot((vVertexPositionWorldSpace - uPlanePoint), uNormal);		
 		if(isBeforePlane <= 0.0) {
 			discard;
 		}
+
+		vec3 v = normalize(vVertexPosition);
+		vec3 n = normalize(vVertexNormal);
+		
+		vec4 ambient = vec4(0.0);
+		vec4 diffuse = vec4(0.0);
+		vec4 specular = vec4(0.0);
+		vec4 color = vec4(0.0);
+		
+		if(gl_FrontFacing) {    		
+		
+		    calculateLighting(1, n, v, gl_FrontMaterial.shininess,
+						      ambient, diffuse, specular);
+    						  
+		    color.rgb  = (gl_FrontLightModelProduct.sceneColor  +
+				     (ambient  * gl_FrontMaterial.ambient) +
+				     (diffuse  * gl_FrontMaterial.diffuse) +
+				     (specular * gl_FrontMaterial.specular)).rgb;
+            color.a = gl_FrontMaterial.diffuse.a;
+            color = clamp(color, 0.0, 1.0);
+		    color.rgb *= color.a;    	
+		    	
+    	} else { // back facing fragments
+    			
+			calculateLighting(1, -n, v, 0.7,
+						  ambient, diffuse, specular);
+
+			color.rgb  = ((ambient  * vec4(1.0, 0.1, 0.0, 1.0)) +
+				     (diffuse  * vec4(1.0, 0.1, 0.0, 1.0)) +
+				     (specular * vec4(1.0, 1.0, 1.0, 1.0))).rgb;			
+			color.a = 1.0;			
+            color = clamp(color, 0.0, 1.0);
+		}
+	
+		gl_FragColor = color;		
 	}
 //</fragment>

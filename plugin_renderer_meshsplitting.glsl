@@ -217,7 +217,7 @@
 				     (ambient  * gl_FrontMaterial.ambient) +
 				     (diffuse  * gl_FrontMaterial.diffuse) +
 				     (specular * gl_FrontMaterial.specular)).rgb;
-				     
+			     
 		    ambient  = vec4(0.0);
 		    diffuse  = vec4(0.0);
 		    specular = vec4(0.0);
@@ -239,13 +239,8 @@
     	
 		    color.rgb *= color.a;
 		
-		/*
-            color.a = gl_FrontMaterial.diffuse.a;
-            color = clamp(color, 0.0, 1.0);
-		    color.rgb *= color.a;    	
-		*/
     	} else { // back facing fragments
-    			
+    		
 			calculateLighting(1, -n, v, 0.7,
 						  ambient, diffuse, specular);
 

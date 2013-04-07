@@ -156,7 +156,7 @@ public:
 		const float vfDiffuse[] = { 0.9f, 0.9f, 0.9f, 1.0f };
 		const float vfSpecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-
+        glLoadIdentity();
 		glLightfv(GL_LIGHT0, GL_POSITION, vfPosition);
 		glLightfv(GL_LIGHT0, GL_AMBIENT, vfAmbient);
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, vfDiffuse);

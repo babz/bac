@@ -210,17 +210,40 @@
 		
 		if(gl_FrontFacing) {    		
 		
-		    calculateLighting(1, n, v, gl_FrontMaterial.shininess,
+		    calculateLighting(gl_MaxLights, n, v, gl_FrontMaterial.shininess,
 						      ambient, diffuse, specular);
     						  
 		    color.rgb  = (gl_FrontLightModelProduct.sceneColor  +
 				     (ambient  * gl_FrontMaterial.ambient) +
 				     (diffuse  * gl_FrontMaterial.diffuse) +
 				     (specular * gl_FrontMaterial.specular)).rgb;
+				     
+		    ambient  = vec4(0.0);
+		    diffuse  = vec4(0.0);
+		    specular = vec4(0.0);
+		    
+		    calculateLighting(gl_MaxLights, -n, v, gl_BackMaterial.shininess,
+						  ambient, diffuse, specular);
+						  
+			color.rgb += (gl_BackLightModelProduct.sceneColor  +
+				 (ambient  * gl_BackMaterial.ambient) +
+				 (diffuse  * gl_BackMaterial.diffuse) +
+				 (specular * gl_BackMaterial.specular)).rgb;
+		
+		    float nDotE = dot(n,-v);
+
+		    float fOpacity = max(gl_FrontMaterial.diffuse.a,gl_BackMaterial.diffuse.a);
+
+		    color.a = mix((smoothstep(0.0,0.75,1.0-(pow(abs(nDotE),fOpacity)))),fOpacity,fOpacity);// * smoothstep(0.0,1.0,abs(nDotE));
+		    color = clamp(color, 0.0, 1.0);
+    	
+		    color.rgb *= color.a;
+		
+		/*
             color.a = gl_FrontMaterial.diffuse.a;
             color = clamp(color, 0.0, 1.0);
 		    color.rgb *= color.a;    	
-		    	
+		*/
     	} else { // back facing fragments
     			
 			calculateLighting(1, -n, v, 0.7,

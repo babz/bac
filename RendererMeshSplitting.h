@@ -62,7 +62,7 @@ public:
 		GetPlugin().GetProperty("Plane Translation").require(Variant::TypeVector(Vector(0.0f, 0.0f, 0.0f)));
 		GetPlugin().GetProperty("Plane Translation").addObserver(&m_modVariantObserver);
 
-		GetPlugin().GetProperty("Plane Rotation Vector").require(Variant::TypeVector(Vector(0.0f, 0.0f, 0.0f)));
+		GetPlugin().GetProperty("Plane Rotation Vector").require(Variant::TypeVector(Vector(1.0f, 0.0f, 0.0f)));
 		GetPlugin().GetProperty("Plane Rotation Vector").addObserver(&m_modVariantObserver);
 
 		GetPlugin().GetProperty("Plane Rotation Angle").require(Variant::TypeFloat(0.0f));

@@ -1,0 +1,25 @@
+%contents:
+%- literature studies
+%- analysis
+%- comparison and summary of existing approaches
+
+\section{Literature studies}
+
+Exploring volume data is a complex task. Every research has different points or regions of interest (ROI) and the methods to reveal those regions depend on the purpose of the study. Hence, regions are classified by their \emph{degree-of-interest} (DOI)~\cite{proc:intelligentCutaway}. A high DOI means a region is of high interest, a low DOI stands for a region of secondary interest.\\
+There are tree main methods for revealing inner structures of an object:
+\begin{itemize}
+	\item Transparency/Ghosted views
+	\item Cut-away views
+	\item Explosion views
+\end{itemize}
+
+\subsection{Transparency/Ghosted views}
+These techniques do not discard any data points but let them vanish to a certain degree. Hence it lowers the opacity of certain data points. For example, the opacity of the outer structure of an object is decreased so that the inner structure is revealed~\cite{jour:correa}.\\
+Ghosting is often used in combination with cut-away views. This would mean that the region cut out is replaced by faded duplicate of the original. Features such as edges are attempted to be preserved. Therefor the \emph{ghost} stands for the original region before cutting~\cite{proc:volumeshop}.\\
+Increasing the transparency of occluding parts makes ROIs visible but at the same time makes it difficult to distinguish the several semi-transparent layers and identify their spatial composition~\cite{jour:interactiveCutaway}.\\
+Bruckner and Gr{\"o}ller~\cite{proc:volumeshop} use a ghost object explicitly to preserve the context of illustrations. When the user defines a ROI, several transformations can be applied to it while at the original position, a faded version of the ROI will be visible.\\
+In their work, Bruckner and Gr{\"o}ller describe a method with weighted membership functions of background, ghost and selection respectively to define the color of the resulting illustration. The opacity for a point p will be determined by the grade of membership in the union of all sets.
+
+\subsection{Cut-away views}
+Cut-away views, also called cutaways, reveal ROIs that are occluded by objects of secondary interest. The latter are cut out in order to make the ROI visible~\cite{proc:volumeshop}~\cite{jour:adaptiveCutaways}~\cite{jour:correa}~\cite{incoll:cutawayIllustration}. Omitting the occluding regions increases comprehension of spatial relationships between the components. Also, the position and orientation of ROIs are shown in context of their surrounding structures~\cite{jour:interactiveCutaway}.
+

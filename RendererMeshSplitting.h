@@ -65,7 +65,7 @@ public:
 		GetPlugin().GetProperty("Plane Rotation Vector").require(Variant::TypeVector(Vector(1.0f, 0.0f, 0.0f)));
 		GetPlugin().GetProperty("Plane Rotation Vector").addObserver(&m_modVariantObserver);
 
-		GetPlugin().GetProperty("Plane Rotation Angle").require(Variant::TypeFloat(0.0f));
+		GetPlugin().GetProperty("Plane Rotation Angle").require(Variant::TypeFloat(0.0f, -180.0f, 180.0f));
 		GetPlugin().GetProperty("Plane Rotation Angle").addObserver(&m_modVariantObserver);
 
 		GetPlugin().GetProperty("Plane Color").require(Variant::TypeColor(Color(0.0f, 0.0f, 1.0f, 0.2f)));
@@ -74,8 +74,11 @@ public:
 		GetPlugin().GetProperty("Plane Scale").require(Variant::TypeVector(Vector(1.0f, 1.0f, 1.0f)));
 		GetPlugin().GetProperty("Plane Scale").addObserver(&m_modVariantObserver);
 
-		GetPlugin().GetProperty("Offset").require(Variant::TypeFloat(0.5f));
+		GetPlugin().GetProperty("Offset").require(Variant::TypeFloat(0.5f, 0.0f, 10.0f));
 		GetPlugin().GetProperty("Offset").addObserver(&m_modVariantObserver);
+
+        GetPlugin().GetProperty("Interior Shading Mode").require((Variant::TypeOption(), Variant("No shading"), Variant("Flat red shading"), Variant("Padded phong shading"), Variant("Caved phong shading")));
+		GetPlugin().GetProperty("Interior Shading Mode").addObserver(&m_modMeshObserver);
 
 		Handle hanMesh = GetPlugin().GetProperty("Mesh");
 		TriangleMesh *pMesh = hanMesh.GetResource<TriangleMesh>();
@@ -183,6 +186,20 @@ public:
 			glEnable( GL_SAMPLE_ALPHA_TO_COVERAGE_ARB );
 		}
 
+        //shading mode
+        const std::string sShadingMode = GetPlugin().GetProperty("Interior Shading Mode");
+        
+        //shading mode 0 does nothing in the shader
+        int iShadingMode = 0;
+		if(sShadingMode.compare("Flat red shading") == 0) {
+			iShadingMode = 1;
+		} else if(sShadingMode.compare("Caved phong shading") == 0) {
+			iShadingMode = 3;
+        } else if(sShadingMode.compare("Padded phong shading") == 0) {
+			iShadingMode = 2;
+		}
+		
+
 		//DRAW MODEL
 
 		// update model view matrix after light position has been set
@@ -196,7 +213,8 @@ public:
 		m_shaShader.bind();
 		glUniform3f(m_shaShader.GetUniformLocation("uNormal"), planeNormal.GetX(), planeNormal.GetY(), planeNormal.GetZ());
 		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"), 0.0f + vecPlaneTranslation.GetX(), 0.0f + vecPlaneTranslation.GetY(), 0.0f + vecPlaneTranslation.GetZ());
-		renderMesh(*pMesh);
+        glUniform1i(m_shaShader.GetUniformLocation("uShadingMode"), iShadingMode);
+        renderMesh(*pMesh);
 		m_shaShader.release();
 
 		// second half of model
@@ -205,7 +223,8 @@ public:
 		m_shaShader.bind();
 		glUniform3f(m_shaShader.GetUniformLocation("uNormal"), -planeNormal.GetX(), -planeNormal.GetY(), -planeNormal.GetZ());
 		glUniform3f(m_shaShader.GetUniformLocation("uPlanePoint"), 0.0f + vecPlaneTranslation.GetX(), 0.0f + vecPlaneTranslation.GetY(), 0.0f + vecPlaneTranslation.GetZ());
-		renderMesh(*pMesh);
+        glUniform1i(m_shaShader.GetUniformLocation("uShadingMode"), iShadingMode);
+        renderMesh(*pMesh);
 		m_shaShader.release();
 
 		//DRAW MODEL END

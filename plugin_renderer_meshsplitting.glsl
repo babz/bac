@@ -33,6 +33,7 @@
 //<fragment>
 	uniform vec3 uPlanePoint;
 	uniform vec3 uNormal;
+	uniform int uShadingMode;
 		
 	varying vec3 vVertexPositionWorldSpace;
 	varying vec3 vVertexPosition;	
@@ -208,8 +209,30 @@
 		vec4 specular = vec4(0.0);
 		vec4 color = vec4(0.0);
 		
-		if(gl_FrontFacing) {    		
+		if(!gl_FrontFacing && uShadingMode != 0) {    		
 		
+		    //flat red shading
+		    if(uShadingMode == 1) {
+		        color = vec4(1.0, 0.0, 0.0, 1.0);
+		    }
+		    //caved phong shading 
+		    else {
+		        //padded phong shading
+		        if(uShadingMode == 2) {
+		            n = vPlaneNormal;
+		        }
+		        calculateLighting(1, -n, v, 0.7,
+					          ambient, diffuse, specular);
+
+		        color.rgb  = ((ambient  * vec4(1.0, 0.1, 0.0, 1.0)) +
+			             (diffuse  * vec4(1.0, 0.1, 0.0, 1.0)) +
+			             (specular * vec4(1.0, 1.0, 1.0, 1.0))).rgb;			
+		        color.a = 1.0;			
+                color = clamp(color, 0.0, 1.0);
+            }
+
+    	} else {
+    		
 		    calculateLighting(gl_MaxLights, n, v, gl_FrontMaterial.shininess,
 						      ambient, diffuse, specular);
     						  
@@ -238,17 +261,7 @@
 		    color = clamp(color, 0.0, 1.0);
     	
 		    color.rgb *= color.a;
-		
-    	} else { // back facing fragments
-    		
-			calculateLighting(1, -n, v, 0.7,
-						  ambient, diffuse, specular);
-
-			color.rgb  = ((ambient  * vec4(1.0, 0.1, 0.0, 1.0)) +
-				     (diffuse  * vec4(1.0, 0.1, 0.0, 1.0)) +
-				     (specular * vec4(1.0, 1.0, 1.0, 1.0))).rgb;			
-			color.a = 1.0;			
-            color = clamp(color, 0.0, 1.0);
+		    
 		}
 	
 		gl_FragColor = color;		

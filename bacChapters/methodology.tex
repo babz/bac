@@ -8,9 +8,21 @@
 %- formalism
 
 \section{Plug-ins in VolumeShop}
-VolumeShop is an interactive hardware-accelerated application for direct volume illustration~\cite{proc:volumeshop}. It is designed for developers to have maximum flexibility for visualization research. Its objects can be dynamically created and accessed~\cite{misc:volumeshop101}.\\
+VolumeShop is an interactive hardware-accelerated application for direct volume illustration~\cite{proc:volumeshop}. It is designed for developers to have maximum flexibility for visualization research. The functionality of the program is implemented with plug-ins that are functionally independent components, but its properties can also be linked to those of another plug-in. This way, a plug-in has access to the data of another plug-in. Plug-ins are hosted by containers that provide all necessary resources for them.~\cite{misc:volumeshop101}.\\
 \newline
-Plug-ins are functionally independent and can be dynamically loaded. One main advantage in development is that the application does not need to be closed when a plug-in is recompiled. 
+Plug-ins can be dynamically loaded, and suspended and resumed at runtime. One main advantage in development is that the application does not need to be closed when a plug-in is recompiled. This is possible due to the fact that plug-ins are compiled into Dynamic Link Libraries (DLLs) that are scanned for changes by Volumeshop. When a change is being detected, the plug-in is reloaded.
+
+\subsection{Types of plug-ins}
+In Volumeshop, several types of plug-ins exist:
+\begin{itemize}
+	\item Renderers
+	\item Interactors
+	\item Compositors
+	\item Editors
+\end{itemize}
+
+In short, \emph{Renderers} are responsible for the way the polygonal objects are displayed, \emph{Interactors} provide common interaction functionality like cameras, \emph{Compositors} combine the output of multiple renderers or interactors and \emph{Editors} are specialized GUI widgets for certain tasks~\cite{misc:volumeshop101}.
+
 \subsection{Properties}
 The complete state of a plug-in is defined by its properties which constitute the plug-ins' functionality~\cite{misc:volumeshop101}. A plug-in can be easily created with the following command. \\
 An example for an integer property in the range [0,255]:
@@ -19,9 +31,8 @@ GetPlugin().GetProperty("Test2") = Variant::TypeInteger(12,0,255);
 \end{lstlisting}
 
 For extended functionality there is the possibility of linking properties. The change of a property causes linked properties to change as well.\\
-Creating links in the GUI:
-[FIGURE]
-Creating links programmatically:
+Creating links in the Graphical User Interface (GUI) is performed by simply right clicking the property with the mouse and choosing the desired linking property.\\
+An example for creating links programmatically is stated in the following code fragment:
 \begin{lstlisting}
 // Link property "MyProperty" to property "LinkedProperty"
 PropertyContainer::Link myLink(pTargetObject,"LinkedProperty");
@@ -30,7 +41,7 @@ GetPlugin().SetPropertyLink("MyProperty",myLink);
 
 \subsection{Observers}
 \label{chap:observers}
-Observers allow tracking changes in properties or other objects. Notifications are being bound to member functions with the class 'ModifiedObserver'. This class notifies changes from multiple objects of different types~\cite{misc:volumeshop101}.\\
+Observers allow tracking changes in properties or other objects. Notifications are being bound to member functions with the class \emph{ModifiedObserver}. This class notifies changes from multiple objects of different types~\cite{misc:volumeshop101}.\\
 An example for using observers:
 \begin{lstlisting}
 // usually a class member
@@ -51,16 +62,15 @@ void changed(const Variant & object, const Observable::Event & event)
 	GetPlugin().update();
 }
 \end{lstlisting}
+Basically, this code snippet connects an observer to a property. Whenever this property is being changed in the GUI, the observer is being informed about it through a callback function and can react appropriately by re-rendering the illustration and updating its attributes.\\
 
-For this work the display() function is of most importance. It is responsible for the rendering.
-
-\subsection{Languages}
+\subsection{Technologies}
 The plug-ins are written in C++ using OpenGL that is a successful cross-platform graphics application programming interface (API) for 2D and 3D computer graphics~\cite{book:computerGraphicsHill}.\\ %book: preface v
 For shading and texturing OpenGL Shading Language (GLSL) is used~\cite{misc:volumeshop101}.
 
 \section{Concept of Shaders}
 
-In GLSL there are four different shaders:
+In GLSL there are four different types of shaders:
 \begin{itemize}
 	\item Vertex shader
 	\item Fragment shader
@@ -70,28 +80,33 @@ In GLSL there are four different shaders:
 
 The purpose of the two basic shaders, vertex shader and fragment shader, will be described in the following section.\\
 \newline
-In 3D computer graphics objects are described with a set of polygon surface patches and are called 'polygonal mesh' or simply 'mesh'. Each polygon has several vertices, edges and faces~\cite{book:computerGraphicsHearn}. With GLSL the shading of the polygons can be modified directly, replacing the default shading function of OpenGL.
+In 3D computer graphics objects are described with a set of polygon surface patches and are called 'polygonal mesh' or simply 'mesh'. Each polygon has several vertices, edges and faces~\cite{book:computerGraphicsHearn}. With GLSL the shading of the polygons can be modified directly, replacing the fixed function pipeline of OpenGL.
 %book: p 123, 124
 
 \subsection{Vertex shader}
-The vertex data is taken as input. A single vertex can consist of several attributes include position, color and normals.\\
+The vertex data is taken as input. A single vertex can consist of several attributes including position, color and normal vector.\\
 The vertex shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p439
 \begin{itemize}
-	\item transforming vertex positions
-	\item transforming the normal vectors and normalizing them
+	\item transforming vertex position
+	\item transforming the normal vector and normalizing it
 	\item generating and transforming texture coordinates
-	\item applying light models such as ambient, diffuse and specular per vertex
+	\item applying light (such as ambient, diffuse and specular) per vertex
 	\item computing color
 \end{itemize}
 
 \subsection{Fragment shader}	
-After the vertices have been transformed into the viewplane they are rasterized. The result are fragments which contain information about screen coordinates, depth, color, texture coordinates and so on. The value of the pixel color is determined by interpolation of the vertex colors.\\
+After the vertices have been transformed into the viewplane they are rasterized. The result are fragments which contain information about screen coordinates, depth, color and texture coordinates. The value of the fragment color is determined by interpolation of the vertex colors.\\
 The fragment shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p440
 \begin{itemize}
 	\item applying light values
 	\item computing shadows
-	\item adding complex texture(e.g. Bump Mapping)
+	\item adding complex texture (e.g. Bump Mapping)
 \end{itemize}
+
+\subsubsection{Discarding fragments}
+In the fragment shader, a break condition is available. The keyword \emph{discard} drops the current processed fragment and exits the shader~\cite{misc:glslTut}. This is useful for speeding up the computation, because fragments that are not meant to become pixel do not have to be calculated in the first place.
+
+TODO explain fragment
 
 
 

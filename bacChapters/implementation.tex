@@ -20,7 +20,7 @@ To apply changes made in the interface immediately, an observer for the property
 GetPlugin().GetProperty("Plane Translation Vector").addObserver(&m_modVariantObserver);
 \end{lstlisting}
 
-Before drawing the plane, the Viewing Transformation Matrix is loaded. This matrix is for tranforming the coordinates from world space into viewing space~\cite{book:computerGraphicsHearn}.\\
+Before drawing the plane, the Viewing Transformation Matrix is loaded. This matrix is for transforming the coordinates from world space into viewing space~\cite{book:computerGraphicsHearn}.\\
 Then the plane is being adjusted by its affine transformations. All passed parameters are of the type \emph{float}and taken from the user input.\\
 The commands in OpenGL:
 \begin{lstlisting}
@@ -29,7 +29,7 @@ glRotatef(vecPlaneRotationAngle, vecPlaneRotation.GetX(), vecPlaneRotation.GetY(
 glScalef(vecPlaneScaling.GetX(), vecPlaneScaling.GetY(), vecPlaneScaling.GetZ());
 \end{lstlisting}
 
-The color of the plane is handed over from the input panel, normalized, and passed on to the renderer. In VolumeShop, this can be easily archieved by calling the function 'GetNormalized<ColorChannel>()'.
+The color of the plane is handed over from the input panel, normalized, and passed on to the renderer. In VolumeShop, this can be easily achieved by calling the function 'GetNormalized<ColorChannel>()'.
 \begin{lstlisting}
 glColor4f(vecPlaneColor.GetNormalizedRed(), vecPlaneColor.GetNormalizedGreen(), vecPlaneColor.GetNormalizedBlue(), vecPlaneColor.GetNormalizedAlpha());
 \end{lstlisting}
@@ -45,7 +45,7 @@ glBegin(GL_QUADS);
 glEnd();
 \end{lstlisting}
 
-In fact, the plane is infinite, but for the purpose as a visual helper it is displayed as a square with side length 2. Note that the plane is also scaleable to account for meshes of various sizes.\\
+In fact, the plane is infinite, but for the purpose as a visual helper it is displayed as a square with side length 2. Note that the plane is also scalable to account for meshes of various sizes.\\
 
 Figure~\ref{fig:plane} shows a few examples of possible plane positions.
 \begin{figure}%
@@ -75,7 +75,7 @@ The following code reveals the rotation matrix regarding the interface inputs.
 glLoadIdentity();
 glRotatef(vecPlaneRotationAngle, vecPlaneRotationVector.GetX(), vecPlaneRotationVector.GetY(), vecPlaneRotationVector.GetZ());
 \end{lstlisting}
-Of course, the rotation matix could also be calculated using the generally known formulas~\cite{book:computerGraphicsHill}:\\ %p217
+Of course, the rotation matrix could also be calculated using the generally known formulas~\cite{book:computerGraphicsHill}:\\ %p217
 \newline
 x-roll:
 \begin{equation}
@@ -113,7 +113,7 @@ R_{z}(\beta) =
 % book p 220
 However, it should be considered that 3D rotation matrices do not commute~\cite{book:computerGraphicsHill}, so the order of multiplication matters. For details on matrix multiplication and applying affine transformations please look up the referenced literature\cite{book:computerGraphicsHearn}\cite{book:computerGraphicsHill}.
 \newline
-Subsequently, the rotated normal vector is multiplied with the modelview matrix to get the vector in modelview space before it is normalized. After normalization the normal vector has a value between 0 and 1.
+Subsequently, the rotated normal vector is multiplied with the model view matrix to get the vector in model view space before it is normalized. After normalization the normal vector has a value between 0 and 1.
 \begin{lstlisting}
 planeNormal.normalize();
 \end{lstlisting}
@@ -141,7 +141,7 @@ In VolumeShop, the two meshes are displayed with a plane in between. The distanc
 
 
 \subsection{Discarding dispensable fragments}
-To eliminte the pixels from the other side of the plane of each mesh respectively, it has to be determined on which side of the plane a pixel lies.\\
+To eliminate the pixels from the other side of the plane of each mesh respectively, it has to be determined on which side of the plane a pixel lies.\\
 The computation is performed in the fragment shader.\\
 The dot product of the plane normal and the vertex position minus a point on the plane states if the vertex is in front of or behind the plane. If the resulting value is smaller or equal to zero, the point is behind the plane and should not be drawn. Before the mesh is rendered, the normal of the plane as well as a point on the plane must be passed to the shader as uniforms\footnote{A uniform is a type designation. It is passed from the application to the shader. Its value in the shader is constant and never changes.~\cite{misc:glslTut}}. 
 For the first half of the mesh the normal vector remains unchanged, for the second one converted. The point on the plane has to be determined in respect of the plane translation.\\
@@ -162,7 +162,7 @@ if(dotProduct <= 0.0) {
 \end{lstlisting}
 
 \section{Shading the mesh}
-The back faces of the mesh still have the same color as the front faces, what makes it look unreal (see figure ~\ref{fig:shading}). Therefore, the back faces have to be shaded in a different color. GLSL has an input variable \emph{gl_FrontFacing} to check if the fragment is front facing. The following code shades all back facing vertices red:
+The back faces of the mesh still have the same color as the front faces, what makes it look unreal (see figure ~\ref{fig:shading}). Therefore, the back faces have to be shaded in a different color. GLSL has an input variable \emph{gl\_FrontFacing} to check if the fragment is front facing. The following code shades all back facing vertices red:
 \begin{lstlisting}
 if(!gl_FrontFacing){
 	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0)
@@ -210,7 +210,7 @@ The result is a nicly shaded inside of the mesh with a hollow appearence (see fi
 
 \subsection{Shading the cut surface}
 "`Cut surfaces are interior surfaces of solid objects that are made visible by the cutaway action."'~\cite{jour:adaptiveCutaways}\\
-To smoothly shade the cut surface, the normals of the visible backfaces of the mesh are replaced by the inverse normal vector of the plane. With this approach, the shading is dependent on the viewing direction, so the reflection on the cut surface changes when the model is rotated.\\
+To smoothly shade the cut surface, the normals of the visible back-faces of the mesh are replaced by the inverse normal vector of the plane. With this approach, the shading is dependent on the viewing direction, so the reflection on the cut surface changes when the model is rotated.\\
 For the implementation of shading cut surfaces, the Blinn-Phong shading model is used. So the difference to the approach stated above is simply calling the lighting function with a different normal.
 \begin{lstlisting}
 n = vPlaneNormal;

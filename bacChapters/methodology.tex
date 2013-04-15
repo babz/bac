@@ -10,10 +10,10 @@
 \section{Plug-ins in VolumeShop}
 VolumeShop is an interactive hardware-accelerated application for direct volume illustration~\cite{proc:volumeshop}. It is designed for developers to have maximum flexibility for visualization research. The functionality of the program is implemented with plug-ins that are functionally independent components, but its properties can also be linked to those of another plug-in. This way, a plug-in has access to the data of another plug-in. Plug-ins are hosted by containers that provide all necessary resources for them.~\cite{misc:volumeshop101}.\\
 \newline
-Plug-ins can be dynamically loaded, and suspended and resumed at runtime. One main advantage in development is that the application does not need to be closed when a plug-in is recompiled. This is possible due to the fact that plug-ins are compiled into Dynamic Link Libraries (DLLs) that are scanned for changes by Volumeshop. When a change is being detected, the plug-in is reloaded.
+Plug-ins can be dynamically loaded, and suspended and resumed at runtime. One main advantage in development is that the application does not need to be closed when a plug-in is recompiled. This is possible due to the fact that plug-ins are compiled into Dynamic Link Libraries (DLLs) that are scanned for changes by VolumeShop. When a change is being detected, the plug-in is reloaded.
 
 \subsection{Types of plug-ins}
-In Volumeshop, several types of plug-ins exist:
+In VolumeShop, several types of plug-ins exist:
 \begin{itemize}
 	\item Renderers
 	\item Interactors
@@ -68,7 +68,7 @@ Basically, this code snippet connects an observer to a property. Whenever this p
 The plug-ins are written in C++ using OpenGL that is a successful cross-platform graphics application programming interface (API) for 2D and 3D computer graphics~\cite{book:computerGraphicsHill}.\\ %book: preface v
 For shading and texturing OpenGL Shading Language (GLSL) is used~\cite{misc:volumeshop101}.
 
-\section{Concept of Shaders}
+\section{Concept of shaders}
 
 In GLSL there are four different types of shaders:
 \begin{itemize}
@@ -80,14 +80,14 @@ In GLSL there are four different types of shaders:
 
 The purpose of the two basic shaders, vertex shader and fragment shader, will be described in the following section.\\
 \newline
-In 3D computer graphics objects are described with a set of polygon surface patches and are called 'polygonal mesh' or simply 'mesh'. Each polygon has several vertices, edges and faces~\cite{book:computerGraphicsHearn}. With GLSL the shading of the polygons can be modified directly, replacing the fixed function pipeline of OpenGL.
+In 3D computer graphics objects are described with a set of polygon surface patches and are called \empgh{polygonal mesh} or simply \emph{mesh}. Each polygon has several vertices, edges and faces~\cite{book:computerGraphicsHearn}. With GLSL the shading of the polygons can be modified directly, replacing the fixed function pipeline of OpenGL.
 %book: p 123, 124
 
 \subsection{Vertex shader}
-The vertex data is taken as input. A single vertex can consist of several attributes including position, color and normal vector.\\
+The main purpose of the vertex shader is the computation of the final vertex position. The vertex data is taken as input. A single vertex can consist of several attributes including position, color and normal vector.\\
 The vertex shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p439
 \begin{itemize}
-	\item transforming vertex position
+	\item transforming the vertex position
 	\item transforming the normal vector and normalizing it
 	\item generating and transforming texture coordinates
 	\item applying light (such as ambient, diffuse and specular) per vertex
@@ -95,16 +95,16 @@ The vertex shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p
 \end{itemize}
 
 \subsection{Fragment shader}	
-After the vertices have been transformed into the viewplane they are rasterized. The result are fragments which contain information about screen coordinates, depth, color and texture coordinates. The value of the fragment color is determined by interpolation of the vertex colors.\\
-The fragment shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p440
+After the vertices have been transformed into the view plane they are rasterized. Data defined as output of the vertex shader is automatically interpolated before it's passed on to the fragment shader. The output of the rasterizer are fragments which contain information about screen coordinates, depth, color and texture coordinates. The fragment shader must define the final color of the fragment.\\
+Additionally the fragment shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p440
 \begin{itemize}
 	\item applying light values
 	\item computing shadows
-	\item adding complex texture (e.g. Bump Mapping)
+	\item applying complex texture data (e.g. Bump Mapping)
 \end{itemize}
 
 \subsubsection{Discarding fragments}
-In the fragment shader, a break condition is available. The keyword \emph{discard} drops the current processed fragment and exits the shader~\cite{misc:glslTut}. This is useful for speeding up the computation, because fragments that are not meant to become pixel do not have to be calculated in the first place.
+In the fragment shader, a break condition is available. The keyword \emph{discard} drops the current processed fragment and exits the shader~\cite{misc:glslTut}. This is useful for speeding up the computation, because fragments that are not meant to become pixels do not have to be passed on to the next stage of the OpenGL pipeline.
 
 TODO explain fragment
 

@@ -27,7 +27,7 @@ In short, \emph{Renderers} are responsible for the way the polygonal objects are
 The complete state of a plug-in is defined by its properties which constitute the plug-ins' functionality~\cite{misc:volumeshop101}. A plug-in can be easily created with the following command. \\
 An example for an integer property in the range [0,255]:
 \begin{lstlisting}
-GetPlugin().GetProperty("Test2") = Variant::TypeInteger(12,0,255);
+GetPlugin().GetProperty("Test") = Variant::TypeInteger(12,0,255);
 \end{lstlisting}
 
 For extended functionality there is the possibility of linking properties. The change of a property causes linked properties to change as well.\\
@@ -80,7 +80,7 @@ In GLSL there are four different types of shaders:
 
 The purpose of the two basic shaders, vertex shader and fragment shader, will be described in the following section.\\
 \newline
-In 3D computer graphics objects are described with a set of polygon surface patches and are called \empgh{polygonal mesh} or simply \emph{mesh}. Each polygon has several vertices, edges and faces~\cite{book:computerGraphicsHearn}. With GLSL the shading of the polygons can be modified directly, replacing the fixed function pipeline of OpenGL.
+In 3D computer graphics objects are described with a set of polygon surface patches and are called \emph{polygonal mesh} or simply \emph{mesh}. Each polygon has several vertices, edges and faces~\cite{book:computerGraphicsHearn}. With GLSL the shading of the polygons can be modified directly, replacing the fixed function pipeline of OpenGL.
 %book: p 123, 124
 
 \subsection{Vertex shader}
@@ -95,8 +95,8 @@ The vertex shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p
 \end{itemize}
 
 \subsection{Fragment shader}	
-After the vertices have been transformed into the view plane they are rasterized. Data defined as output of the vertex shader is automatically interpolated before it's passed on to the fragment shader. The output of the rasterizer are fragments which contain information about screen coordinates, depth, color and texture coordinates. The fragment shader must define the final color of the fragment.\\
-Additionally the fragment shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p440
+After the vertices have been transformed into the view plane they are rasterized. Data defined as output of the vertex shader is automatically interpolated before it is passed on to the fragment shader. The output of the rasterizer are fragments which contain information about screen coordinates, depth, color and texture coordinates. The fragment shader defines the final color of the fragment. As fragments can have the same screen coordinates it is possible that multiple fragments can contribute to the same pixel in the frame buffer~\cite{book:computerGraphicsHill}.\\
+Additionally, the fragment shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p440
 \begin{itemize}
 	\item applying light values
 	\item computing shadows
@@ -104,10 +104,4 @@ Additionally the fragment shader can perform tasks such as~\cite{book:computerGr
 \end{itemize}
 
 \subsubsection{Discarding fragments}
-In the fragment shader, a break condition is available. The keyword \emph{discard} drops the current processed fragment and exits the shader~\cite{misc:glslTut}. This is useful for speeding up the computation, because fragments that are not meant to become pixels do not have to be passed on to the next stage of the OpenGL pipeline.
-
-TODO explain fragment
-
-
-
-
+In the fragment shader, a break condition is available. The keyword \emph{discard} drops the current processed fragment and exits the shader\footnote{http://wiki.delphigl.com/index.php/Tutorial{\_}glsl}. This is useful for speeding up the computation, because fragments that are not meant to become pixels do not have to be passed on to the next stage of the OpenGL pipeline. After the fragment shader, per-fragment-operations like depth-test and stencil-test are performed, before the fragment color is written to the frame buffer. If blending is enabled the fragment color is blended with the existing pixel color in the frame buffer.

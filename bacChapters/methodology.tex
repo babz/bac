@@ -7,9 +7,10 @@
 %- analysis methods
 %- formalism
 
-\section{Plug-ins in VolumeShop}
+
 VolumeShop is an interactive hardware-accelerated application for direct volume illustration~\cite{proc:volumeshop}. It is designed for developers to have maximum flexibility for visualization research. The functionality of the program is implemented with plug-ins that are functionally independent components, but its properties can also be linked to those of another plug-in. This way, a plug-in has access to the data of another plug-in. Plug-ins are hosted by containers that provide all necessary resources for them.~\cite{misc:volumeshop101}.\\
-\newline
+
+\section{Plug-ins in VolumeShop}
 Plug-ins can be dynamically loaded, and suspended and resumed at runtime. One main advantage in development is that the application does not need to be closed when a plug-in is recompiled. This is possible due to the fact that plug-ins are compiled into Dynamic Link Libraries (DLLs) that are scanned for changes by VolumeShop. When a change is being detected, the plug-in is reloaded.
 
 \subsection{Types of plug-ins}
@@ -20,16 +21,13 @@ In VolumeShop, several types of plug-ins exist:
 	\item Compositors
 	\item Editors
 \end{itemize}
-
 In short, \emph{Renderers} are responsible for the way the polygonal objects are displayed, \emph{Interactors} provide common interaction functionality like cameras, \emph{Compositors} combine the output of multiple renderers or interactors and \emph{Editors} are specialized GUI widgets for certain tasks~\cite{misc:volumeshop101}.
 
 \subsection{Properties}
-The complete state of a plug-in is defined by its properties which constitute the plug-ins' functionality~\cite{misc:volumeshop101}. A plug-in can be easily created with the following command. \\
-An example for an integer property in the range [0,255]:
+The complete state of a plug-in is defined by its properties which constitute the plug-ins' functionality~\cite{misc:volumeshop101}. A property can be easily created with the following command that shows an example for an integer property in the range [0,255]:
 \begin{lstlisting}
 GetPlugin().GetProperty("Test") = Variant::TypeInteger(12,0,255);
 \end{lstlisting}
-
 For extended functionality there is the possibility of linking properties. The change of a property causes linked properties to change as well.\\
 Creating links in the Graphical User Interface (GUI) is performed by simply right clicking the property with the mouse and choosing the desired linking property.\\
 An example for creating links programmatically is stated in the following code fragment:
@@ -62,13 +60,17 @@ void changed(const Variant & object, const Observable::Event & event)
 	GetPlugin().update();
 }
 \end{lstlisting}
-Basically, this code snippet connects an observer to a property. Whenever this property is being changed in the GUI, the observer is being informed about it through a callback function and can react appropriately by re-rendering the illustration and updating its attributes.\\
+This code snippet connects an observer to a property. Whenever this property is being changed in the GUI, the observer is being informed about it through a callback function and can react appropriately by re-rendering the illustration and updating its attributes.
+TODO peter
 
 \subsection{Technologies}
-The plug-ins are written in C++ using OpenGL that is a successful cross-platform graphics application programming interface (API) for 2D and 3D computer graphics~\cite{book:computerGraphicsHill}.%book: preface v
-For shading and texturing OpenGL Shading Language (GLSL) is used~\cite{misc:volumeshop101}.
+The plug-ins are written in C++ using OpenGL which is a successful cross-platform graphics application programming interface (API) for 2D and 3D computer graphics~\cite{book:computerGraphicsHill}. For shading and texturing OpenGL Shading Language (GLSL) is used~\cite{misc:volumeshop101}.
 
 \section{Concept of shaders}
+
+%TODO explain shaders: these are parallelly executed for every vertex and every fragment on the GPU.
+In 3D computer graphics objects are described with a set of polygon surface patches and are called \emph{polygonal mesh} or simply \emph{mesh}. Each polygon has several vertices, edges and faces~\cite{book:computerGraphicsHearn}. With GLSL the shading of the polygons can be modified directly with programmable \emph{shaders}, replacing the fixed function pipeline of OpenGL. These shaders are parallelly executed for every vertex and every fragment in the \emph{graphics processing unit} (GPU) and allow the usage of customized effects.
+%book: p 123, 124
 
 In GLSL there are four different types of shaders:
 \begin{itemize}
@@ -77,11 +79,7 @@ In GLSL there are four different types of shaders:
 	\item Geometry shader
 	\item Tessellation shader
 \end{itemize}
-
 The purpose of the two basic shaders, vertex shader and fragment shader, will be described in the following section.\\
-\newline
-In 3D computer graphics objects are described with a set of polygon surface patches and are called \emph{polygonal mesh} or simply \emph{mesh}. Each polygon has several vertices, edges and faces~\cite{book:computerGraphicsHearn}. With GLSL the shading of the polygons can be modified directly, replacing the fixed function pipeline of OpenGL.
-%book: p 123, 124
 
 \subsection{Vertex shader}
 The main purpose of the vertex shader is the computation of the final vertex position. The vertex data is taken as input. A single vertex can consist of several attributes including position, color and normal vector.\\
@@ -96,12 +94,16 @@ The vertex shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p
 
 \subsection{Fragment shader}	
 After the vertices have been transformed into the view plane they are rasterized. Data defined as output of the vertex shader is automatically interpolated before it is passed on to the fragment shader. The output of the rasterizer are fragments which contain information about screen coordinates, depth, color and texture coordinates. The fragment shader defines the final color of the fragment. As fragments can have the same screen coordinates it is possible that multiple fragments can contribute to the same pixel in the frame buffer~\cite{book:computerGraphicsHill}.\\
-Additionally, the fragment shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p440
-\begin{itemize}
-	\item applying light values
-	\item computing shadows
-	\item applying complex texture data (e.g. Bump Mapping)
+The fragment shader can perform tasks such as~\cite{book:computerGraphicsHill}: %p440
+\begin{itemize}%wikipedia
+	\item per-pixel-lighting (using interpolated normals from the vertex shader)
+	\item normal-mapping (looking up normals from a texture)
+	\item bump-mapping (computing normals based on a hight-map of a texture)
 \end{itemize}
+The normals obtained from normal-maps and bump-maps are also used for lighting calculation and result in a better illumination than the computation with per-pixel-lighting that uses interpolated normals.
 
 \subsubsection{Discarding fragments}
-In the fragment shader, a break condition is available. The keyword \emph{discard} drops the current processed fragment and exits the shader\footnote{http://wiki.delphigl.com/index.php/Tutorial{\_}glsl}. This is useful for speeding up the computation, because fragments that are not meant to become pixels do not have to be passed on to the next stage of the OpenGL pipeline. After the fragment shader, per-fragment-operations like depth-test and stencil-test are performed, before the fragment color is written to the frame buffer. If blending is enabled the fragment color is blended with the existing pixel color in the frame buffer.
+In the fragment shader, a break condition is available. The keyword \emph{discard} drops the current processed fragment and exits the shader\footnote{http://wiki.delphigl.com/index.php/Tutorial{\_}glsl}. This is useful for speeding up the computation, because fragments that are not meant to become pixels do not have to be passed on to the next stage of the OpenGL pipeline.\\
+
+\subsection{Per-fragment operations}
+After the fragment shader, per-fragment-operations like depth-test and stencil-test are performed, before the fragment color is written to the frame buffer. If blending is enabled the fragment color is blended with the existing pixel color in the frame buffer.

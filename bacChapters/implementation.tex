@@ -3,15 +3,22 @@ In this section a step by step approach to reveal inner structures of a mesh wil
 
 \section{Definition of the plane}
 \label{chap:planeDefinition}
-The cutting plane to calculate the cut is defined by a point on the plane and a normal vector. Its dimension is per definition indefinite. Visually, the plane is represented as a rectangle with a certain user-defined dimension that is adaptable to the size of the mesh to be split. This gives the user an idea where the cut in the mesh is performed. Additionally, to increase comprehension for the user, the color of the plane, its opacity and scaling factor can be set by the user. The orientation of the cutting plane can be defined with properties like translation and rotation vectors that influence the calculation of the mesh splitting directly.\\
-Defining a name and a type for a property is mandatory. The following code sample shows the initialization of a property named \emph{Plane Translation Vector} of the type \emph{Vector}.
+The cutting plane to calculate the cut is defined by a point on the plane and a normal vector. Its dimension is per definition indefinite. Visually, the plane is represented as a rectangle with a certain user-defined dimension that is adaptable to the size of the mesh to be split. This gives the user an idea where the cut in the mesh is performed. Additionally, to increase comprehension for the user, the color of the plane, its opacity and scaling factor can be set by the user. The orientation of the cutting plane can be defined with properties like translation and rotation vectors that influence the calculation of the mesh splitting directly.
 
+Defining a name and a type for a property is mandatory. The following code sample shows the initialization of a property named \emph{Plane Translation Vector} of the type \texttt{Vector}.
+
+\IncMargin{1em}
 \begin{algorithm}
-\SetKwFunction{GetPlugin}{GetPlugin}
-\SetKwFunction{GetProperty}{GetProperty}{"Plane Translation Vector"}
-\GetPlugin.\GetProperty
+\SetKwFunction{plugin}{GetPlugin}
+\SetKwFunction{property}{GetProperty}
+\SetKwFunction{require}{require}
+\SetKwFunction{TypeVector}{TypeVector}
+\SetKwFunction{Vector}{Vector}
+\plugin{}.\property{"Plane Translation Vector"}.\require{Variant::\TypeVector{\Vector{0.0f, 0.0f, 0.0f}}};
+\BlankLine
 \caption{Initialization of a property named \emph{Plane Translation Vector} of the type \emph{Vector}}
 \end{algorithm}
+\DecMargin{1em}
 
 %\begin{lstlisting}
 %GetPlugin().GetProperty("Plane Translation Vector").require(Variant::TypeVector(Vector(0.0f, 0.0f, 0.0f)));
@@ -22,18 +29,19 @@ To apply changes made in the interface immediately, an observer for the property
 GetPlugin().GetProperty("Plane Translation Vector").addObserver(&m_modVariantObserver);
 \end{lstlisting}
 
-Before drawing the plane, the Viewing Transformation Matrix is loaded. This matrix is for transforming the coordinates from world space into viewing space~\cite{book:computerGraphicsHearn}.\\
-Then the plane is being adjusted by its affine transformations. All parameters passed are of the type \emph{float} and taken from the user input.\\
+Before drawing the plane, the Viewing Transformation Matrix is loaded. This matrix is for transforming the coordinates from world space into viewing space~\cite{book:computerGraphicsHearn}.
+
+Then the plane is being adjusted by its affine transformations. All parameters passed are of the type \texttt{float} and taken from the user input.
+
 The commands in OpenGL:
 \begin{lstlisting}
 glTranslatef(vecPlaneTranslation.GetX(), vecPlaneTranslation.GetY(), vecPlaneTranslation.GetZ());
 glRotatef(vecPlaneRotationAngle, vecPlaneRotation.GetX(), vecPlaneRotation.GetY(), vecPlaneRotation.GetZ());
 glScalef(vecPlaneScaling.GetX(), vecPlaneScaling.GetY(), vecPlaneScaling.GetZ());
 \end{lstlisting}
+%TODO explain code
 
-TODO explain code
-
-The color of the plane is handed over from the input panel, normalized, and passed on to the renderer. In VolumeShop, this can be easily achieved by calling the function \emph{GetNormalized<ColorChannel>()}.
+The color of the plane is handed over from the input panel, normalized, and passed on to the renderer. In VolumeShop, this can be easily achieved by calling the function \texttt{GetNormalized<ColorChannel>()}.
 \begin{lstlisting}
 glColor4f(vecPlaneColor.GetNormalizedRed(), vecPlaneColor.GetNormalizedGreen(), vecPlaneColor.GetNormalizedBlue(), vecPlaneColor.GetNormalizedAlpha());
 \end{lstlisting}
@@ -49,9 +57,8 @@ glBegin(GL_QUADS);
 glEnd();
 \end{lstlisting}
 
-In fact, the plane is infinite, but for the purpose as a visual helper it is displayed as a square with side length two. Note that the plane is also scalable to account for meshes of various sizes.\\
+In fact, the plane is infinite, but for the purpose as a visual helper it is displayed as a square with side length two. Note that the plane is also scalable to account for meshes of various sizes. Figure~\ref{fig:plane} shows a few examples of possible plane positions.
 
-Figure~\ref{fig:plane} shows a few examples of possible plane positions.
 \begin{figure}%
 \centering
 \includegraphics[width=0.3\textwidth]{ownChapters/figures/planeRotate90_010.png}%
@@ -64,8 +71,7 @@ Figure~\ref{fig:plane} shows a few examples of possible plane positions.
 \end{figure}
 
 \section{Splitting the mesh}
-
-The splitting offset is again implemented as an interface parameter. If the parameter is set to \emph{0.0} the mesh does not seem to be split. The larger the value of the offset the bigger the distance between the two halves of the mesh.
+The splitting offset is again implemented as an interface parameter. If the parameter is set to zero the mesh does not seem to be split. The larger the value of the offset the bigger the distance between the two halves of the mesh.
 \begin{lstlisting}
 GetPlugin().GetProperty("Offset").require(Variant::TypeFloat(0.5f));
 \end{lstlisting}
@@ -73,14 +79,16 @@ GetPlugin().GetProperty("Offset").require(Variant::TypeFloat(0.5f));
 Note that an observer needs to be added as well (cf. Chapter~\ref{chap:planeDefinition} and Chapter~\ref{chap:observers}).
 
 \subsection{Rotation of the planes' normal vector}
-The normal of the plane has been defined as \emph{(0.0, 0.0, 1.0)}, but regarding that the normal vector is still located in the object space of the plane, it needs to be transformed into the same space as the mesh. This is being done by rotating the normal by the same amount as the plane is rotated in the interface.\\
+The normal of the plane has been defined as \texttt{(0.0, 0.0, 1.0)}, but regarding that the normal vector is still located in the object space of the plane, it needs to be transformed into the same space as the mesh. This is being done by rotating the normal by the same amount as the plane is rotated in the interface.
+
 The following code reveals the rotation matrix regarding the interface inputs.
 \begin{lstlisting}
 glLoadIdentity();
 glRotatef(vecPlaneRotationAngle, vecPlaneRotationVector.GetX(), vecPlaneRotationVector.GetY(), vecPlaneRotationVector.GetZ());
 \end{lstlisting}
-The rotation matrix could also be calculated using the generally known formulas~\cite{book:computerGraphicsHill}:\\ %p217
-\newline
+
+The rotation matrix could also be calculated using the generally known formulas~\cite{book:computerGraphicsHill}:\\%p217
+
 x-roll:
 \begin{equation}
 R_{x}(\beta) = 
@@ -91,8 +99,8 @@ R_{x}(\beta) =
 	0 & 0 & 0 & 1 
 \end{pmatrix}
 \end{equation}
-\newline
-y-roll:\\
+
+y-roll:
 \begin{equation}
 R_{y}(\beta) =
 \begin{pmatrix} 
@@ -102,8 +110,8 @@ R_{y}(\beta) =
 	0 & 0 & 0 & 1
 \end{pmatrix}
 \end{equation}
-\newline
-z-roll:\\
+
+z-roll:
 \begin{equation}
 R_{z}(\beta) =
 \begin{pmatrix} 
@@ -113,17 +121,15 @@ R_{z}(\beta) =
 	0 & 0 & 0 & 1
 \end{pmatrix}
 \end{equation}
-\newline
+
 % book p 220
-However, it should be considered that 3D rotation matrices do not commute~\cite{book:computerGraphicsHill}, so the order of multiplication matters. For details on matrix multiplication and applying affine transformations please look up the referenced literature~\cite{book:computerGraphicsHearn}\cite{book:computerGraphicsHill}.
-\newline
-Subsequently, the rotated normal vector is multiplied with the model view matrix to get the vector in model view space before it is normalized. After normalization the normal vector has a value between 0 and 1.
+However, it should be considered that 3D rotation matrices do not commute~\cite{book:computerGraphicsHill}, so the order of multiplication matters. For details on matrix multiplication and applying affine transformations please look up the referenced literature~\cite{book:computerGraphicsHearn}\cite{book:computerGraphicsHill}. Subsequently, the rotated normal vector is multiplied with the model view matrix to get the vector in model view space before it is normalized. After normalization the normal vector has a value between 0 and 1.
 \begin{lstlisting}
 planeNormal.normalize();
 \end{lstlisting}
 
 \subsection{Translating the mesh}
-The mesh is translated by the value of the offset in the direction of the normal vector. The command in OpenGL for translation is \emph{glTranslatef}. Before the mesh is rendered the shader needs to be bound.
+The mesh is translated by the value of the offset in the direction of the normal vector. The command in OpenGL for translation is \texttt{glTranslatef}. Before the mesh is rendered the shader needs to be bound.
 \begin{lstlisting}
 Vector meshTranslation = planeNormal * offset;
 glTranslatef(meshTranslation.GetX(), meshTranslation.GetY(), meshTranslation.GetZ());
@@ -131,8 +137,9 @@ m_shaShader.bind();
 renderMesh(*pMesh);
 m_shaShader.release();
 \end{lstlisting}
-As stated above the mesh is rendered twice to create the illusion of a mesh that is dragged apart. Therefore, the mesh needs to be rendered again with a translation in the opposite direction.\\
-In VolumeShop, the two meshes are displayed with a plane in between. The distance of the meshes is twice the offset (cf. Figure~\ref{fig:offset}).
+
+As stated above the mesh is rendered twice to create the illusion of a mesh that is dragged apart. Therefore, the mesh needs to be rendered again with a translation in the opposite direction. In VolumeShop, the two meshes are displayed with a plane in between. The distance of the meshes is twice the offset (cf. Figure~\ref{fig:offset}).
+
 \begin{figure}%
 \centering
 \includegraphics[width=0.4\textwidth]{ownChapters/figures/1_noOffset.png}%
@@ -143,15 +150,21 @@ In VolumeShop, the two meshes are displayed with a plane in between. The distanc
 \end{figure}
 
 \subsection{Discarding dispensable fragments}
-To eliminate the pixels from the other side of the plane of each mesh respectively, it has to be determined on which side of the plane a pixel lies. The computation is performed in the fragment shader.\\
-TODO formula/code
+To eliminate the pixels from the other side of the plane of each mesh respectively, it has to be determined on which side of the plane a pixel lies. The computation is performed in the fragment shader (cf. Algorithm~\ref{alg:pointBeforePlane}).
 
-The dot product of the plane normal and the vertex position minus a point on the plane states if the vertex is in front of or behind the plane.%~\ref{eq:positionOfPixel}.
-If the resulting value is smaller or equal to zero, the point is behind the plane and should not be drawn. \\
-\newline
+\IncMargin{1em}
+\begin{algorithm}
+\SetAlgoNoLine
+\If{(N $\cdot$ (v - p)) $<=$ $0.0$}{discard\;}
+\caption{The dot product of the plane normal \emph{N} and the vertex position \emph{v} subtracted by a point on the plane \emph{p} states if the vertex is in front of or behind the cutting plane. A value greater than zero states that the point is in front of the plane. In case the point is behind the plane, it is discarded.}
+\BlankLine
+\label{alg:pointBeforePlane}
+\end{algorithm}
+\DecMargin{1em}
+
 Before the mesh is rendered, the normal of the plane as well as a point on the plane must be passed to the shader as uniforms\footnote{A uniform is a type designation. It is passed from the application to the shader. Its value in the shader is constant and never changes.}. 
-For the first half of the mesh the normal vector remains unchanged, for the second one converted. The point on the plane has to be determined in respect of the plane translation.\\
-\newline
+For the first half of the mesh the normal vector remains unchanged, for the second one converted. The point on the plane has to be determined in respect of the plane translation.
+
 Definition of the plane normal and point on the plane as uniforms:
 \begin{lstlisting}
 glUniform3f(m_shaShader.GetUniformLocation("planeNormal"), planeNormal.GetX(), planeNormal.GetY(), planeNormal.GetZ());
@@ -168,7 +181,7 @@ if(dotProduct <= 0.0) {
 \end{lstlisting}
 
 \section{Shading the mesh}
-The back faces of the mesh still have the same color as the front faces, what makes it look unreal (cf. Figure~\ref{fig:shading}). Therefore, the back faces have to be shaded in a different color. GLSL has an input variable \emph{gl\_FrontFacing} to check if the fragment is front facing. The following code shades all back facing vertices red:
+The back faces of the mesh still have the same color as the front faces, what makes it look unreal (cf. Figure~\ref{fig:shading}). Therefore, the back faces have to be shaded in a different color. GLSL has an input variable \texttt{gl\_FrontFacing} to check if the fragment is front facing. The following code shades all back facing vertices red:
 \begin{lstlisting}
 if(!gl_FrontFacing){
 	gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0)
@@ -216,12 +229,15 @@ The result is a nicly shaded inside of the mesh with a hollow appearence (cf. Fi
 
 \subsection{Shading the cut surface}
 \label{chap:cutSurface}
-"Cut surfaces are interior surfaces of solid objects that are made visible by the cutaway action."~\cite{jour:adaptiveCutaways}\\
-To smoothly shade the cut surface, the normals of the visible back-faces of the mesh are replaced by the inverse normal vector of the plane. With this approach, the shading is dependent on the viewing direction, so the reflection on the cut surface changes when the model is rotated.\\
+"Cut surfaces are interior surfaces of solid objects that are made visible by the cutaway action."~\cite{jour:adaptiveCutaways}
+
+To smoothly shade the cut surface, the normals of the visible back-faces of the mesh are replaced by the inverse normal vector of the plane. With this approach, the shading is dependent on the viewing direction, so the reflection on the cut surface changes when the model is rotated.
+
 For the implementation of shading cut surfaces, the Blinn-Phong shading model is used. The difference to the approach stated above is simply calling the lighting function with a different normal.
 \begin{lstlisting}
 n = vPlaneNormal;
 \end{lstlisting}
+
 The result looks like in figure~\ref{fig:shading}. The illustration shows a slightly rotated model to point out that the light changes with the viewing perspective, so the left half appears less illuminated than the right half.
 
 \begin{figure}%
@@ -236,5 +252,3 @@ The result looks like in figure~\ref{fig:shading}. The illustration shows a slig
 \caption{Different methods of shading the back faces (from upper left to lower right): no special treatment, flat shading, caved interior shading, cut surface shading}%
 \label{fig:shading}%
 \end{figure}
-
-TODO make newlines after code lines consistent

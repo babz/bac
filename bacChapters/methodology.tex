@@ -7,10 +7,12 @@
 %- analysis methods
 %- formalism
 
-VolumeShop is an interactive hardware-accelerated application for direct volume illustration~\cite{proc:volumeshop}. It is designed for developers to have maximum flexibility for visualization research. The functionality of the program is implemented with plug-ins that are functionally independent components, but its properties can also be linked to those of another plug-in. This way, a plug-in has access to the data of another plug-in. Plug-ins are hosted by containers that provide all necessary resources for them~\cite{misc:volumeshop101}.
+In this chapter, the creation of plug-ins in VolumeShop is introduced with descriptive code examples. VolumeShop is an interactive hardware-accelerated application for direct volume illustration~\cite{proc:volumeshop}. It is designed for developers to have maximum flexibility for visualization research. Furthermore, common concepts of the OpenGL pipeline and methods for visible-surface detection are presented. 
 
 \section{Plug-ins in VolumeShop}
-Plug-ins can be dynamically loaded, and suspended and resumed at runtime. One main advantage in development is that the application does not need to be closed when a plug-in is recompiled. This is possible due to the fact that plug-ins are compiled into Dynamic Link Libraries (DLLs) that are scanned for changes by VolumeShop. When a change is being detected, the plug-in is reloaded.
+The functionality of the program is implemented with plug-ins that are functionally independent components, but its properties can also be linked to those of other plug-ins. In this way, a plug-in has access to the data of other plug-ins. Plug-ins are hosted by containers that provide all necessary resources for them~\cite{misc:volumeshop101}.
+
+Plug-ins can be dynamically loaded, suspended and resumed at runtime. One main advantage in development is that the application does not need to be closed when a plug-in is recompiled. This is possible due to the fact that plug-ins are compiled into \emph{Dynamic Link Libraries} (DLLs) that are scanned for changes by VolumeShop. When a change is detected, the plug-in is reloaded.
 
 \subsection{Types of plug-ins}
 In VolumeShop, several types of plug-ins exist:
@@ -21,57 +23,79 @@ In VolumeShop, several types of plug-ins exist:
 	\item Editors
 \end{itemize}
 
-In short, \emph{Renderers} are responsible for the way the polygonal objects are displayed, \emph{Interactors} provide common interaction functionality like cameras, \emph{Compositors} combine the output of multiple renderers or interactors and \emph{Editors} are specialized Graphical User Interface (GUI) widgets for certain tasks~\cite{misc:volumeshop101}.
+In short, \emph{Renderers} are responsible for the way the polygonal objects are displayed, \emph{Interactors} provide common interaction functionality like cameras, \emph{Compositors} combine the output of multiple renderers or interactors and \emph{Editors} are specialized Graphical User Interface (GUI) widgets~\cite{misc:volumeshop101}.
 
 \subsection{Properties}
-The complete state of a plug-in is defined by its properties which constitute the plug-ins' functionality~\cite{misc:volumeshop101}. A property can be easily created with the following command that shows an example for an integer property in the range [0,255]:
-\begin{lstlisting}
-GetPlugin().GetProperty("Test") = Variant::TypeInteger(12,0,255);
-\end{lstlisting}
-For extended functionality there is the possibility of linking properties. The change of a property causes linked properties to change as well.
+The complete state of a plug-in is defined by its properties which constitute the plug-ins' functionality (cf. Algorithm~\ref{alg:intProperty})~\cite{misc:volumeshop101}.
+\begin{algorithm}
+%\linesnumberedhidden
+%\SetNoLine
+\FuncSty{GetPlugin().GetProperty(\ArgSty{"Test"})= Variant::TypeInteger(\ArgSty{12,0,255})}\;
+\BlankLine
+\caption{Creation of the integer property \emph{Test} in the range between 0 and 255~\cite{misc:volumeshop101}.}
+\label{alg:intProperty}
+\end{algorithm}
+%\begin{lstlisting}
+%GetPlugin().GetProperty("Test") = Variant::TypeInteger(12,0,255);
+%\end{lstlisting}
 
-Creating links in the GUI is performed by simply right clicking the property with the mouse and choosing the desired linking property.
-
-An example for creating links programmatically is stated in the following code fragment:
-\begin{lstlisting}
-// Link property "MyProperty" to property "LinkedProperty"
-PropertyContainer::Link myLink(pTargetObject,"LinkedProperty");
-GetPlugin().SetPropertyLink("MyProperty",myLink);
-\end{lstlisting}
+For extended functionality there is the possibility of linking properties. The change of a property causes linked properties to change as well. Creating links in the GUI is performed by simply right clicking the property with the mouse and choosing the desired linking property. Links can also be defined programmatically (cf. Algorithm~\ref{alg:creatingLinks}).
+\begin{algorithm}
+\FuncSty{PropertyContainer::Link myLink(\ArgSty{pTargetObject,"LinkedProperty"});
+GetPlugin().SetPropertyLink(\ArgSty{"MyProperty",myLink})}\;
+\BlankLine
+\caption{Link property \emph{MyProperty} to property \emph{LinkedProperty}~\cite{misc:volumeshop101}.}
+\label{alg:creatingLinks}
+\end{algorithm}
+%\begin{lstlisting}
+%// Link property "MyProperty" to property "LinkedProperty"
+%PropertyContainer::Link myLink(pTargetObject,"LinkedProperty");
+%GetPlugin().SetPropertyLink("MyProperty",myLink);
+%\end{lstlisting}
 
 \subsection{Observers}
 \label{chap:observers}
-Observers allow tracking changes in properties or other objects. Notifications are being bound to member functions with the class \texttt{ModifiedObserver}. This class notifies changes from multiple objects of different types~\cite{misc:volumeshop101}.
-
-An example for using observers:
-\begin{lstlisting}
-// usually a class member
-ModifiedObsever myObserver;
-
-// typically in plugin constructur
-// connect observer to member function
-myObserver.connect(this,&MyPlugin::changed);
-
-// add observer to objects we want to track
-GetPlugin().GetProperty("MyProperty1").addObsever(&myObserver);
-GetPlugin().GetProperty("MyProperty2").addObsever(&myObserver);
-
-// notification handler
-void changed(const Variant & object, const Observable::Event & event)
-{
-	// handle changes, e.g., trigger re-render
-	GetPlugin().update();
-}
-\end{lstlisting}
-
-This code snippet connects an observer to a property. Whenever this property is being changed in the GUI, the observer is being informed about it through a callback function and can react appropriately by re-rendering the illustration and updating its attributes.
-%TODO peter: describe alg
+Observers allow tracking changes in properties or other objects. Notifications are bound to member functions with the class \texttt{ModifiedObserver}. This class notifies changes from multiple objects of different types~\cite{misc:volumeshop101}. When an observer is connected to a property and this property is changed in the GUI, the observer is informed about it through a callback function. Then it can react appropriately by re-rendering the illustration and updating its attributes (cf. Algorithm~\ref{alg:observerUsage}).
+\LinesNumbered
+\begin{algorithm}
+\FuncSty{ModifiedObserver} \ArgSty{myObserver}\;
+\ArgSty{myObserver}\FuncSty{.connect(\ArgSty{this,\&MyPlugin::changed})}\;
+\FuncSty{GetPlugin().GetProperty(\ArgSty{"MyProperty1"}).addObsever(\ArgSty{\&myObserver})}\;\label{ln:prop1}
+\FuncSty{GetPlugin().GetProperty(\ArgSty{"MyProperty2"}).addObsever(\ArgSty{\&myObserver})}\;\label{ln:prop2}
+\FuncSty{void changed(\ArgSty{const Variant \& object, const Observable::Event \& event})}\\
+\{\\
+\Indp\FuncSty{GetPlugin().update()}\;\label{ln:rerender}
+\Indm\}
+\BlankLine
+\caption{Registering observers to properties. Lines~\NlSty{\ref{ln:prop1}} and~\NlSty{\ref{ln:prop2}} add an observer to the objects that are to be tracked. Line~\NlSty{\ref{ln:rerender}} handles changes in the property such as trigger re-rendering~\cite{misc:volumeshop101}.}
+\label{alg:observerUsage}
+\end{algorithm}
+\LinesNotNumbered
+%\begin{lstlisting}
+%// usually a class member
+%ModifiedObsever myObserver;
+%
+%// typically in plugin constructur
+%// connect observer to member function
+%myObserver.connect(this,&MyPlugin::changed);
+%
+%// add observer to objects we want to track
+%GetPlugin().GetProperty("MyProperty1").addObsever(&myObserver);
+%GetPlugin().GetProperty("MyProperty2").addObsever(&myObserver);
+%
+%// notification handler
+%void changed(const Variant & object, const Observable::Event & event)
+%{
+	%// handle changes, e.g., trigger re-render
+	%GetPlugin().update();
+%}
+%\end{lstlisting}
 
 \subsection{Technologies}
-The plug-ins are written in C++ using the \emph{Open Graphics Library} (OpenGL) which is a successful cross-platform graphics application programming interface (API) for 2D and 3D computer graphics~\cite{book:computerGraphicsHill}. For shading and texturing \emph{OpenGL Shading Language} (GLSL) is used~\cite{misc:volumeshop101}.
+The plug-ins are written in C++ using \emph{Open Graphics Library} (OpenGL) which is a successful cross-platform graphics application programming interface (API) for 2D and 3D computer graphics~\cite{book:computerGraphicsHill}. For shading and texturing \emph{OpenGL Shading Language} (GLSL) is used~\cite{misc:volumeshop101}.
 
 \section{Concept of shaders}
-In 3D computer graphics objects are described with a set of polygon surface patches and are called \emph{polygonal mesh} or simply \emph{mesh}. Each polygon has several vertices, edges and faces~\cite{book:computerGraphicsHearn}. With GLSL the shading of the polygons can be modified directly with programmable \emph{shaders}, replacing the fixed function pipeline of OpenGL. These shaders are parallelly executed for every vertex and every fragment in the \emph{graphics processing unit} (GPU) and allow the usage of customized effects. In GLSL there are four different types of shaders:
+In 3D computer graphics objects are described with a set of polygon surface patches and are called \emph{polygonal mesh} or simply \emph{mesh}. Each polygon consists of several vertices that define edges and faces~\cite{book:computerGraphicsHearn}. With GLSL the shading of the polygons can be modified directly with \emph{programmable shaders}, replacing the fixed function pipeline of OpenGL. These shaders are parallelly executed for every vertex and every fragment in the \emph{graphics processing unit} (GPU) and allow the usage of customized effects. In GLSL there are four different types of shaders:
 \begin{itemize}
 	\item Vertex shader
 	\item Fragment shader
@@ -88,7 +112,7 @@ The main purpose of the vertex shader is the computation of the final vertex pos
 	\item transforming the normal vector and normalizing it
 	\item generating and transforming texture coordinates
 	\item applying light (such as ambient, diffuse and specular) per vertex
-	\item computing color
+	\item computing per-vertex color
 \end{itemize}
 
 \subsection{Fragment shader}	
@@ -99,10 +123,10 @@ After the vertices have been transformed into the view plane they are rasterized
 	\item bump-mapping (computing normals based on a hight-map of a texture)
 \end{itemize}
 
-The normals obtained from normal-maps and bump-maps are also used for lighting calculation and result in a better illumination than the computation with per-pixel-lighting that uses interpolated normals.
+The normals obtained from normal-maps and bump-maps are also used for lighting calculation and result in a better illumination than the computation based on per-pixel-lighting that uses interpolated normals.
 
 \subsubsection{Discarding fragments}
-In the fragment shader, a break condition is available. The keyword \texttt{discard} drops the current processed fragment and exits the shader\footnote{http://wiki.delphigl.com/index.php/Tutorial{\_}glsl}. This is useful for speeding up the computation, because fragments that are not meant to become pixels do not have to be passed on to the next stage of the OpenGL pipeline.
+In the fragment shader, a break condition is available. The keyword \texttt{discard} drops the current processed fragment and exits the shader\footnote{http://www.opengl.org/sdk/docs/tutorials/ClockworkCoders/discard.php}. This is useful for speeding up the computation, because fragments that are not meant to become pixels do not have to be passed on to the next stage of the OpenGL pipeline.
 
 \subsection{Per-fragment operations}
 After the fragment shader, per-fragment-operations like depth-test and stencil-test are performed, before the fragment color is written to the frame buffer. If blending is enabled the fragment color is blended with the existing pixel color in the frame buffer.
@@ -113,13 +137,13 @@ Visible-surface detection algorithms either operate with object definitions (obj
 \subsection{Object-space methods}
 "An object-space method compares objects and parts of objects to each other within the scene definition to determine which surfaces should be labelled as visible."~\cite{book:computerGraphicsHearn}
 
-An example for an object-space method would be the \emph{back-face detection}. It decides whether or not a polyhedron is visible. A back face is determined by checking if the dot product of the viewing vector $V$ and the normal vector $N$ is greater than zero (cf. Equation~\ref{eq:backFaceDetection})
+An example for an object-space method would be \emph{back-face detection}. It decides whether or not a polyhedron is visible. A back face is determined by checking if the dot product of the viewing vector $V$ and the normal vector $N$ is greater than zero (cf. Equation~\ref{eq:backFaceDetection})
 \begin{equation}
 V \cdot N > 0
 \label{eq:backFaceDetection}
 \end{equation}
 
-In object-space, mesh splitting is accomplished by actually splitting the polygons of the genuine mesh in order to generate two separate meshes. This approach does not require any modifications in the shader.
+In object-space, mesh splitting is accomplished by actually splitting the polygons of the genuine mesh in order to generate two separate meshes. This approach does not require further modifications in the shader.
 
 \subsection{Image-space methods}
 "In an image-space algorithm, visibility is decided point by point at each pixel position on the projection plane."~\cite{book:computerGraphicsHearn}
@@ -129,17 +153,15 @@ Examples for image-space methods would be the \emph{scan-line method} and the \e
 Mesh splitting in image-space requires rendering the genuine mesh twice and discarding the dispensable half in the shader respectively.
 
 \subsection{Hybrid methods}
-Hybrid methods are methods that operate in both object-space and image-space.
-
-Examples for hybrid methods are:
+Hybrid methods are methods that operate in both object-space and image-space~\cite{book:computerGraphicsHearn}. Examples for hybrid methods are:
 \begin{itemize}
 	\item Depth-sorting method
 	\item Binary space-partitioning (BSP) tree
 \end{itemize}
 
-The \emph{depth-sorting method} sorts the surfaces in order of decreasing depth. This is being done in both image-space and object-space. Afterwards, the surfaces are scan converted from back to front in image space. A \emph{binary space-partitioning} (BSP) tree recursively subdivides a space with partitioning planes that categorize the surfaces into front objects and back objects. The resulting data structure is a binary tree. Finally, the objects are painted onto the screen from back to front, so that foreground objects are painted over the background objects. In BSP trees, convex polygons are easier to handle than concave polygons, because splitting the latter would always results in two convex parts.
+The \emph{depth-sorting method} sorts the surfaces in order of decreasing depth. Sorting is done in both image-space and object-space. Afterwards, the surfaces are scan converted from back to front in image space. A \emph{BSP tree} recursively subdivides a space with partitioning planes that categorize the surfaces into front objects and back objects. The resulting data structure is a binary tree. Finally, the objects are painted onto the screen from back to front, so that foreground objects are painted over the background objects. In BSP trees, convex polygons are easier to handle than concave polygons, because splitting the latter would always results in two convex parts.
 
 \subsection{Effectiveness of visible-surface detection methods}
-Each objects has its own characteristics and depending on those, the choice of the most effective visible-surface detection method is made. Initially, back-face detection is a fast and effective method to restrict further visibility tests to only visible surfaces. For identifying visible surfaces, the depth-buffer method is also a fast and simple technique. For meshes with only a few surfaces, up to a few thousand polygon surfaces, many overlapping surfaces in depth are not assumed. Therefore, the depth-sorting method and the BSP-tree method would be a good choice. The scan-line method also performs well for meshes with few surfaces. For meshes with a higher number of surfaces, using the depth-buffer method or the octree approach is recommended. The depth-buffer method has a nearly constant processing time, regardless of the number of surfaces of the mesh. Octrees perform fast and simple concerning elimination of hidden-surfaces as the computation is only based on integer additions and subtractions. Additionally, the effectiveness of visible-surface detection methods is based on the fact that they are often implemented in hardware~\cite{book:computerGraphicsHearn}.
+Each objects has its own characteristics and depending on those, the choice of the most effective visible-surface detection method should be made. Initially, back-face detection is a fast and effective method to restrict further visibility tests to only visible surfaces. For identifying visible surfaces, the depth-buffer method is also a fast and simple technique. For meshes with only a few surfaces, up to a few thousand polygon surfaces, many overlapping surfaces in depth are not assumed. Therefore, the depth-sorting method and the BSP tree method would be a good choice. The scan-line method also performs well for meshes with few surfaces. For meshes with a higher number of surfaces, using the depth-buffer method or the octree approach is recommended. The depth-buffer method has a nearly constant processing time, regardless of the number of surfaces of the mesh. Octrees perform fast and simple concerning elimination of hidden-surfaces as the computation is only based on integer additions and subtractions. Additionally, the effectiveness of visible-surface detection methods is based on the fact that they are often implemented in hardware~\cite{book:computerGraphicsHearn}.
 
 Mesh splitting in object-space is superior, if the rendering operation is costly and the cutting plane rarely changes. However, the splitting operation is very expensive compared to the splitting operation in image-space, which is completely computed in the shader. Mesh splitting in image-space is superior in case the splitting plane frequently changes and the costs for rendering the mesh twice are affordable.

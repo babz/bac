@@ -172,15 +172,16 @@ The mesh is translated by an offset in the direction of the normal vector. The c
 %m_shaShader.release();
 %\end{lstlisting}
 
-As stated previously, the mesh is rendered twice to create the illusion of a mesh that is dragged apart. Therefore, the mesh needs to be rendered again with a translation in the opposite direction. In VolumeShop, the two meshes are displayed with a plane in between. The distance of the meshes is twice the offset (cf. Figure~\ref{fig:offset}).
+As stated previously, the mesh is rendered twice to create the illusion of a mesh that is dragged apart. Therefore, the mesh needs to be rendered again with a translation in the opposite direction. In VolumeShop, the two meshes are displayed with a plane in between. The distance of the meshes is twice the offset (cf. Figure~\ref{fig:offsetTypes}).
 
 \begin{figure}%
 \centering
-\includegraphics[width=0.4\textwidth]{ownChapters/figures/1_noOffset.png}%
-\hspace{7.00mm}
-\includegraphics[width=0.4\textwidth]{ownChapters/figures/2_offset.png}%
-\caption{The mesh with no offset (left) and with offset applied (right)}%
-\label{fig:offset}%
+\subcaptionbox{Same shading as for front faces\label{fig:noOffset}}
+	{\includegraphics[width=0.45\textwidth]{ownChapters/figures/1_noOffset.png}}
+\subcaptionbox{Same shading as for front faces\label{fig:offset}}
+	{\includegraphics[width=0.45\textwidth]{ownChapters/figures/2_offset.png}}
+\caption{The mesh with (\subref{fig:noOffset})~no offset and (\subref{fig:offset})~with offset applied.}%
+\label{fig:offsetTypes}%
 \end{figure}
 
 \subsection{Discarding dispensable fragments}
@@ -193,13 +194,13 @@ To eliminate the pixels from the other side of the plane of each mesh respective
 \label{alg:pointBeforePlane}
 \end{algorithm}
 
-Before the mesh is rendered, the normal of the plane as well as a point on the plane must be passed to the shader as uniforms\footnote{A uniform is a type designation. It is passed from the application to the shader. Its value in the shader is constant and never changes.} (cf. Algorithm~\ref{alg:planeNormalAndPoint}). For the first half of the mesh the normal vector remains unchanged, for the second one converted. The point on the plane has to be determined in respect of the plane translation.
+Before the mesh is rendered, the normal of the plane as well as a point on the plane must be passed to the shader as uniforms\footnote{A uniform is a type designation. It is passed from the application to the shader. Its value in the shader is constant and never changes.} (cf. Algorithm~\ref{alg:planeNormalAndPoint}). For the first half of the mesh the normal vector remains unchanged, for the second one inverted. The point on the plane has to be determined in respect of the plane translation.
 \LinesNumbered
 \begin{algorithm}
 \FuncSty{glUniform3f(\ArgSty{m\_shaShader.GetUniformLocation("planeNormal"), planeNormal.GetX(), planeNormal.GetY(), planeNormal.GetZ()})}\;\label{ln:planeN}
 \FuncSty{glUniform3f(\ArgSty{m\_shaShader.GetUniformLocation("planePoint"), vecPlaneTranslation.GetX(), vecPlaneTranslation.GetY(), vecPlaneTranslation.GetZ()})}\;\label{ln:planeP}
 \BlankLine
-\caption{Passing on the uniforms for \emph{planeNormal} (cf. Line~\NlSty{\ref{ln:planeN}}) and \emph{planePoint} (cf. Line~\NlSty{\ref{ln:planeP}}) to the shader.}
+\caption{Passing on the uniforms for \emph{planeNormal} (cf. Line~\NlSty{\ref{ln:planeN}}) and \emph{planePoint} (cf.~Line~\NlSty{\ref{ln:planeP}}) to the shader.}
 \label{alg:planeNormalAndPoint}
 \end{algorithm}
 \LinesNotNumbered
@@ -209,11 +210,11 @@ Before the mesh is rendered, the normal of the plane as well as a point on the p
 %\end{lstlisting}
 
 \section{Shading the mesh}
-The back faces of the mesh still have the same color as the front faces, what makes it look unreal (cf. Figure~\ref{fig:shading}). Therefore, the back faces have to be shaded in a different color. GLSL has an built-in variable \texttt{gl\_FrontFacing} to check if the fragment is front facing. Algorithm~\ref{alg:flatFragColor} shades all back facing vertices red.
+The back faces of the mesh still have the same color as the front faces, what makes it look unreal (cf. Figure~\ref{fig:noInside}). Therefore, the back faces have to be shaded in a different color. GLSL has an built-in variable \texttt{gl\_FrontFacing} to check if the fragment is front facing. Algorithm~\ref{alg:flatFragColor} shades all back facing fragments red.
 \begin{algorithm}
 \If{\FuncSty{(!gl\_FrontFacing)}} {\FuncSty{gl\_FragColor = vec4(\ArgSty{1.0, 0.0, 0.0, 1.0})}\;}
 \BlankLine
-\caption{Flat shading all back facing vertices red.}
+\caption{Flat shading all back facing fragments red (cf. Figure~\ref{fig:flat}).}
 \label{alg:flatFragColor}
 \end{algorithm}
 %\begin{lstlisting}
@@ -223,7 +224,7 @@ The back faces of the mesh still have the same color as the front faces, what ma
 %\end{lstlisting}
 
 \subsection{Shading the back facing fragments}
-To add the impression of depth, lighting of the back facing fragments is being done using the Blinn-Phong shading model (cf. Algorithm~\ref{alg:shadeBackFaces})~\cite{book:computerGraphicsHearn}. The result is a hollow appearance of the inside of the mesh (cf. Figure~\ref{fig:shading}).
+To add the impression of depth, lighting of the back facing fragments is being done using the Blinn-Phong shading model (cf. Algorithm~\ref{alg:shadeBackFaces})~\cite{book:computerGraphicsHearn}. The result is a hollow appearance of the inside of the mesh (cf. Figure~\ref{fig:phong}).
 \LinesNumbered
 \begin{algorithm}
 \FuncSty{void main()}\\
@@ -235,7 +236,7 @@ To add the impression of depth, lighting of the back facing fragments is being d
 	\FuncSty{gl\_FragColor = color}\;\label{ln:color}
 \Indm\}
 \BlankLine
-\caption{Shading the back facing fragments. First, a function is called to apply shading with the Blinn-Phong shading model. The parameters are the light source of the directional light \emph{gl\_LightSource[0]}, the converted vertex normal \emph{-n}, the vertex position \emph{v}, the shininess, and ambient, diffuse and specular light values (cf. Line~\NlSty{\ref{ln:bphong}}). Subsequently, TODO (cf. Line~\NlSty{\ref{ln:light}}). The opacity is determined in Line~\NlSty{\ref{ln:opacity}}, then the color is clamped to a value between 0 and 1 (cf. Line~\NlSty{\ref{ln:clamp}}). Finally, the fragment color is determined (cf. Line~\NlSty{\ref{ln:color}}).}
+\caption{Shading the back facing fragments. First, a function is called to compute the light factors with the Blinn-Phong shading model. The input parameters are the light source of the directional light \emph{gl\_LightSource[0]}, the inverted vertex normal \emph{-n}, the vertex position \emph{v} and the shininess of the material. The output parameters are ambient, diffuse and specular light values (cf. Line~\NlSty{\ref{ln:bphong}}). Subsequently, the material colors are weighted with the previously computed light factors (cf. Line~\NlSty{\ref{ln:light}}). The opacity is determined in Line~\NlSty{\ref{ln:opacity}}, then the color is clamped to a value between 0 and 1 (cf. Line~\NlSty{\ref{ln:clamp}}). Finally, the fragment color is determined (cf.~Line~\NlSty{\ref{ln:color}}).}
 \label{alg:shadeBackFaces}
 \end{algorithm}
 \LinesNotNumbered
@@ -259,31 +260,32 @@ To add the impression of depth, lighting of the back facing fragments is being d
 \label{chap:cutSurface}
 "Cut surfaces are interior surfaces of solid objects that are made visible by the cutaway action."~\cite{jour:adaptiveCutaways}
 
-To smoothly shade the cut surface, the normals of the visible back faces of the mesh are replaced by the inverse normal vector of the plane. With this approach, the shading is dependent on the viewing direction, so the reflection on the cut surface changes when the model is rotated.
-
-For the implementation of shading cut surfaces, the Blinn-Phong shading model is used. The difference to the approach stated previously (cf. Algorithm~\ref{alg:shadeBackFaces}) is simply calling the lighting function with a different normal (cf. Algorithm~\ref{alg:diffNormal}).
+To smoothly shade the cut surface, the normals of the visible back faces of the mesh are replaced by the inverse normal vector of the plane. With this approach, the shading is dependent on the viewing direction, so the reflection on the cut surface changes when the model is rotated. For the implementation of shading cut surfaces, the Blinn-Phong shading model is used. The difference to the approach stated previously (cf. Algorithm~\ref{alg:shadeBackFaces}) is that the lighting function is called with a different normal (cf. Algorithm~\ref{alg:diffNormal}).
 \begin{algorithm}
 \FuncSty{n = planeNormal}\;
 \BlankLine
-\caption{In Algorithm~\ref{alg:shadeBackFaces} (cf. Line~\NlSty{\ref{ln:normVN}}), the vertex normal is replaced with the plane normal.}
+\caption{The vertex normal in Algorithm~\ref{alg:shadeBackFaces} is replaced with the plane normal (cf.~Line~\NlSty{\ref{ln:normVN}}).}
 \label{alg:diffNormal}
 \end{algorithm}
 %\begin{lstlisting}
 %n = vPlaneNormal;
 %\end{lstlisting}
 
-The result looks like in Figure~\ref{fig:shading}. The illustration shows a slightly rotated model to point out that the light changes with the viewing perspective, so the left half appears less illuminated than the right half.
-
+The result looks like in Figure~\ref{fig:cut}. The illustration shows a slightly rotated model to point out that the light changes with the viewing perspective, so the left half appears less illuminated than the right half.
 \begin{figure}%
 \centering
-\subfigure[width=0.4\textwidth]{ownChapters/figures/3_offset_noInside.png
-\label{fig:noInside}}%
+\subcaptionbox{Same shading as for front faces\label{fig:noInside}}
+	{\includegraphics[width=0.45\textwidth]{ownChapters/figures/3_offset_noInside.png}}
 \hspace{7.00mm}
-\includegraphics[width=0.4\textwidth]{ownChapters/figures/4_offset_flatInside.png}%
+\subcaptionbox{Flat shading\label{fig:flat}}
+	{\includegraphics[width=0.45\textwidth]{ownChapters/figures/4_offset_flatInside.png}}
 \hspace{7.00mm}
-\includegraphics[width=0.4\textwidth]{ownChapters/figures/5_offset_phongInside.png}%
+\subcaptionbox{Blinn-Phong shading\label{fig:phong}}
+	{\includegraphics[width=0.45\textwidth]{ownChapters/figures/5_offset_phongInside.png}}
 \hspace{7.00mm}
-\includegraphics[width=0.4\textwidth]{ownChapters/figures/6_offset_paddedPhong.png}%
-\caption{Different methods of shading the back faces (from upper left to lower right): no special treatment~\ref{fig:noInside}, flat shading, caved interior shading, cut surface shading.}%
+\subcaptionbox{Cut surface shading\label{fig:cut}}
+	{\includegraphics[width=0.45\textwidth]{ownChapters/figures/6_offset_paddedPhong.png}}
+\caption{Different methods of shading the back faces: (\subref{fig:noInside})~no special treatment, (\subref{fig:flat})~flat shading, (\subref{fig:phong})~Blinn-Phong shading, (\subref{fig:cut})~cut surface shading.}%
 \label{fig:shading}%
 \end{figure}
+%
